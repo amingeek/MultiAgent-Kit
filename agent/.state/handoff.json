@@ -1,0 +1,30 @@
+{
+  "$schema": "agent/HANDOFF_SCHEMA.md",
+  "project_name": "Universal Project",
+  "tech_stack": [],
+  "active_milestone": {
+    "id": "M00",
+    "title": "Initialization",
+    "source_file": "agent/masters/00-info.md"
+  },
+  "current_step": {
+    "step_number": 0,
+    "description": "Run workspace initialization and reconnaissance",
+    "assigned_role": "orchestrator",
+    "role_file": "agent/roles/00-orchestrator.md",
+    "target_files": [
+      "agent/info/PROJECT_MAP.md"
+    ]
+  },
+  "status": "IDLE",
+  "context_summary": "Ready to execute master 00-info reconnaissance.",
+  "feedback_loop": {
+    "qa_retry_count": 0,
+    "max_retries": 3,
+    "error_logs": "",
+    "failing_tests": [],
+    "required_fix": ""
+  },
+  "acceptance_checklist": [],
+  "last_updated": "2026-11-11T12:00:00Z"
+}
