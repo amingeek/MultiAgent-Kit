@@ -1,7 +1,7 @@
-# BOOTSTRAP — Universal Multi-Agent Workspace Generator (v5.1)
+# BOOTSTRAP — Universal Multi-Agent Workspace Generator (v5.2 Production-Ready)
 
 > HOW TO USE
-> 1. Fill the PROJECT BRIEF below.
+> 1. Fill the PROJECT BRIEF below (leave blank for automatic discovery).
 > 2. Run in terminal: "Read BOOTSTRAP.md and follow it exactly."
 > 3. The agent detects your tech stack, verifies tools, generates stack rules, fills PROJECT_MAP, and prepares the workspace.
 
@@ -32,7 +32,10 @@ MY RULES: (optional custom rules)
 ## AGENT INSTRUCTIONS
 You are a Principal Systems Architect initializing a robust multi-agent engineering workspace.
 1. Inspect repo root: detect manifests, lockfiles, toolchains, git status.
-2. Replace placeholders in `agent/` configuration with real verified commands.
+2. Read and follow `agent/masters/00-info.md` to conduct comprehensive project reconnaissance.
 3. Generate initial `agent/info/PROJECT_MAP.md` and populate `agent/rules/10-contracts-and-conventions.md`.
-4. Ensure `.state/handoff.json` conforms to `HANDOFF_SCHEMA.md`.
-5. Output the next step command: `Read AGENTS.md, then read agent/masters/00-info.md and follow it exactly.`
+4. Update `agent/.state/handoff.json` and verify with:
+   ```bash
+   python3 agent/tools/validate_state.py
+   ```
+5. Output the next step command: `Read AGENTS.md, then read agent/tools/NEW-FEATURE.md and follow it exactly.`

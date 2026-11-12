@@ -5,7 +5,15 @@
 - Inspect authentication, authorization, cryptographic operations, and input sanitization.
 
 ## Workflow
-1. Read `agent/.state/handoff.json` and diff of changed files.
-2. Validate against OWASP Top 10 vulnerabilities.
-3. If flaw discovered: document severity and exact remediation in `feedback_loop`, set status to `QA_FAILED`, return to Developer.
-4. If clean: mark status `SUCCESS`, return to Orchestrator.
+1. Read `agent/.state/handoff.json` and inspect `git diff` on target files.
+2. Validate against OWASP Top 10 vulnerabilities (Injection, Broken Auth, Data Exposure, etc.).
+3. **If flaw discovered:**
+   - Document vulnerability severity, affected lines, and exact remediation in `feedback_loop`.
+   - Set `status` to `QA_FAILED`.
+   - Set `current_step.assigned_role` to `developer`.
+   - Set `current_step.role_file` to `agent/roles/02-developer.md`.
+4. **If clean:**
+   - Set `status` to `SUCCESS`.
+   - Set `current_step.assigned_role` to `orchestrator`.
+   - Set `current_step.role_file` to `agent/roles/00-orchestrator.md`.
+5. Run `python3 agent/tools/validate_state.py`.

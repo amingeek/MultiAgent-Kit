@@ -1,24 +1,25 @@
-# 🤖 Universal Multi-Agent Kit (v5.1 Ultimate)
+# 🤖 Universal Multi-Agent Kit (v5.2 Production-Ready)
 
-[![Version](https://img.shields.io/badge/version-5.1%20Ultimate-blue.svg)]()
-[![Architecture](https://img.shields.io/badge/architecture-Multi--Agent-orange.svg)]()
-[![Paradigm](https://img.shields.io/badge/paradigm-Contract--First%20%7C%20TDD-success.svg)]()
+[![Version](https://img.shields.io/badge/version-5.2%20Production--Ready-blue.svg)]()
+[![Architecture](https://img.shields.io/badge/architecture-Multi--Agent%20%7C%20Supervisor--Worker-orange.svg)]()
+[![Paradigm](https://img.shields.io/badge/paradigm-Contract--First%20%7C%20TDD%20%7C%20Anti--Looping-success.svg)]()
 
-A production-ready, language-agnostic framework designed to turn any AI CLI (like Claude Code, Cursor Composer, or terminal agents) into a structured, autonomous software engineering team. 
+A battle-tested, language-agnostic engineering framework designed to turn any AI CLI or IDE agent (such as Antigravity, Claude Code, Cursor Composer, or terminal agents) into a structured, autonomous software engineering team.
 
-This kit eliminates common LLM agent issues such as context window bloat, hallucinations, and infinite loops by strictly enforcing **Role Segregation (SRP)** and a **Typed JSON Handoff Protocol**.
+This kit eliminates common LLM agent issues such as context window bloat, hallucinations, and infinite debugging loops by strictly enforcing **Role Segregation (SRP)**, a **Typed JSON Handoff Protocol**, and **Automated State Validation**.
 
-## ✨ Key Features
+## ✨ Key Capabilities & Features
 
-- **Strict Separation of Concerns (SRP):** Agents are confined to their specific roles. The Developer writes code but *never* writes tests. The QA Engineer writes tests but *never* modifies business logic.
-- **Zero-Chat Delegation:** Agents do not communicate via unstructured plain text. All task delegations and context handoffs occur through a strictly typed `agent/.state/handoff.json` file.
-- **Anti-Looping Mechanism:** A built-in feedback loop between QA and Developer is capped at a maximum of 3 retries (`max_retries`). If tests continue to fail, the task is marked as `BLOCKED` for human intervention, preventing infinite token-burning loops.
-- **Universal & Language-Agnostic:** Works seamlessly with Go, Python, React, Rust, Node.js, and any other tech stack.
-- **Deterministic TDD:** Forces the creation of unit and integration tests *before* checklist items can be ticked.
+- **Strict Separation of Concerns (SRP):** Agents are confined to isolated roles. The Developer implements business logic but *never* writes tests. The QA Engineer writes tests and failure-injection suites but *never* modifies application logic.
+- **Automated State Validation CLI (`validate_state.py`):** Deterministic Python validator checks `agent/.state/handoff.json` and `agent/STATE.md` at every transition.
+- **Anti-Looping Circuit Breaker:** The feedback loop between QA and Developer is strictly capped at 3 retries (`max_retries = 3`). If tests still fail, the task transitions to `BLOCKED` and halts for human intervention, preventing infinite token burnout.
+- **Battle-Tested Skills Catalog:** 15 comprehensive engineering skills (4 `always` procedures for token budgeting & checkpointing, and 11 `on-demand` procedures covering root-cause debugging, zero-downtime DB migrations, security threat modeling, etc.).
+- **Subagent-Ready Architecture:** Clean separation allows the Orchestrator to dispatch worker roles as isolated subagents with zero context contamination.
+- **Universal & Language-Agnostic:** Works seamlessly with Go, Python, TypeScript, Rust, Java, PHP, C#, Docker, and any other tech stack.
 
 ## 🏗️ System Architecture
 
-The kit utilizes a **Supervisor-Worker** architecture. The Orchestrator manages the DAG (Directed Acyclic Graph) of tasks and delegates them to specialized workers.
+The kit utilizes a **Supervisor-Worker** architecture. The Orchestrator manages the task DAG (Directed Acyclic Graph) and coordinates specialized workers through a typed JSON state.
 
 ```mermaid
 graph TD
@@ -32,67 +33,57 @@ graph TD
     Q -.->|Passes: Success| O
 ```
 
-## 📂 Directory Structure
+## 📂 Directory Layout
 
 ```text
 .
 ├── AGENTS.md                 # System entry point for all agents
-├── BOOTSTRAP.md              # Initialization prompt for new projects
+├── BOOTSTRAP.md              # Project initializer & tech stack detector
 └── agent/
     ├── HANDOFF_SCHEMA.md     # Strict JSON schema for agent communication
     ├── RUNBOOK.md            # Comprehensive human operator manual
-    ├── STATE.md              # Global execution state & block logs
+    ├── STATE.md              # Global execution state & quick tasks log
     ├── .state/
-    │   └── handoff.json      # The single source of truth for agent turns
+    │   └── handoff.json      # Single source of truth for agent transitions
     ├── rules/                # Non-negotiable engineering rules (00 to 10)
     ├── roles/                # Isolated agent personas (Orchestrator, Dev, QA, etc.)
-    ├── skills/               # Reusable engineering procedures (Token-budget, debugging, etc.)
-    ├── masters/              # Domain-driven planning prompts & EXECUTE engine
-    ├── Milestones/           # Output directory for actionable task breakdowns
-    └── tools/                # CLI tools (NEW-FEATURE, QUICK-TASK)
+    ├── skills/               # 15 actionable engineering procedures (always & on-demand)
+    ├── masters/              # Domain-driven feature planning & EXECUTE engine
+    ├── Milestones/           # Actionable step breakdowns and test evidence logs
+    └── tools/                # CLI tools (validate_state.py, NEW-FEATURE, QUICK-TASK)
 ```
 
 ## 🚀 Quick Start
 
-1. **Install the Kit:** Copy the `AGENTS.md`, `BOOTSTRAP.md`, and the `agent/` directory into the root of your repository.
-2. **Initialize Workspace:** Open your AI CLI and run:
+1. **Install the Kit:** Copy `AGENTS.md`, `BOOTSTRAP.md`, and the `agent/` folder into the root of your repository.
+2. **Initialize Workspace & Map Project:**
    ```bash
    Read BOOTSTRAP.md and follow it exactly.
    ```
-3. **Plan a Feature:** Turn your idea into actionable milestones:
+3. **Plan a New Feature:**
    ```bash
    Read AGENTS.md, then read agent/tools/NEW-FEATURE.md and follow it exactly.
-   Feature request: Add JWT Authentication.
+   Feature request: Add JWT Authentication with refresh tokens.
+   ```
+4. **Execute Autonomously:**
+   ```bash
+   Read AGENTS.md, then agent/masters/EXECUTE.md and follow it exactly.
+   MODE: FULLY AUTONOMOUS MULTI-AGENT EXECUTION.
    ```
 
-## 💻 Execution Commands
+## 🛠️ State Verification Tool
 
-Use these commands in your AI CLI to drive the engineering team. (See `agent/MULTI_AGENT_COMMANDS.md` for the full list).
-
-### Option A: Autonomous Mode
-Let the Orchestrator autonomously cycle through the Architect, Developer, and QA roles until the milestone is complete or blocked:
+Run the built-in deterministic state validator at any time:
 ```bash
-Read AGENTS.md, then agent/masters/EXECUTE.md and follow it exactly.
-MODE: FULLY AUTONOMOUS MULTI-AGENT EXECUTION.
+python3 agent/tools/validate_state.py
 ```
 
-### Option B: Step-by-Step Mode (Maximum Control)
-Trigger the orchestrator to prepare the next step:
-```bash
-Read AGENTS.md, then agent/roles/00-orchestrator.md and agent/masters/EXECUTE.md.
-Task: Inspect active milestone, prepare next step in agent/.state/handoff.json, and state which role is needed next.
-```
-Then, manually invoke the designated worker (e.g., Developer):
-```bash
-Read AGENTS.md, then agent/roles/02-developer.md and agent/.state/handoff.json.
-Execute your coding task. DO NOT write tests. Update handoff.json when complete.
-```
+## 🛡️ Core Safety Principles
 
-## 🛡️ Core Safety Rules
-
-- The `agent/` directory is isolated tooling and must NEVER be compiled into production artifacts.
-- Destructive operations (`rm -rf`, `DROP TABLE`, `git push --force`) are strictly prohibited autonomously and require a `BLOCKED-ON-HUMAN` manual execution.
+- The `agent/` directory is isolated engineering tooling and must NEVER be compiled into production artifacts or Docker runtime images.
+- Destructive commands (`rm -rf`, `DROP TABLE`, `git push --force`) are strictly prohibited autonomously and require a `BLOCKED-ON-HUMAN` manual execution.
 - No secrets or credentials shall ever be committed; agents must use `.env.example` placeholders.
+- Test suites must maintain deterministic baselines: passed test count must always be $\ge$ baseline count with 0 new failures.
 
 ---
-*Built for the next generation of autonomous AI software development.*
+*Built for resilient, deterministic, and autonomous AI software engineering.*

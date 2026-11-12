@@ -1,22 +1,37 @@
-# 🚀 Multi-Agent Terminal Command Guide (v5.1)
+# 🚀 Multi-Agent Terminal Command Guide (v5.2 Production-Ready)
 
-Use these exact copy-paste prompts in your AI CLI tool (Claude Code, Cursor Composer, etc.).
+Use these copy-paste commands in your AI CLI tool (Claude Code, Cursor Composer, Antigravity, etc.).
 
 ---
 
-## 1. Bootstrapping & Planning
-**Build Project Map:**
+## 1. Bootstrapping & Feature Planning
+
+### A. Initialize Workspace & Build Project Map
 ```bash
 Read AGENTS.md, then read agent/masters/00-info.md and follow it exactly.
 ```
-**Plan a Feature (Generate Milestones):**
+
+### B. Plan a Feature (Generate Domain Master & Milestones)
 ```bash
-Read AGENTS.md, then agent/masters/_common.md, then agent/masters/01-feature-name.md and follow them exactly.
+Read AGENTS.md, then read agent/tools/NEW-FEATURE.md and follow it exactly.
+Feature Request: <describe feature in detail>
 ```
 
 ---
 
-## 2. Orchestrator-Driven Execution Flow (Step-by-Step)
+## 2. Autonomous Execution (Recommended)
+
+Let the Orchestrator autonomously cycle through roles or dispatch subagents until the milestone is completed or blocked:
+```bash
+Read AGENTS.md, then agent/masters/EXECUTE.md and follow it exactly.
+MODE: FULLY AUTONOMOUS MULTI-AGENT EXECUTION.
+Execute active milestone strictly following the Orchestrator-Developer-QA cycle.
+Do not ask questions. Stop only on SUCCESS or BLOCKED.
+```
+
+---
+
+## 3. Step-by-Step Supervised Flow
 
 ### Step 1: Trigger Orchestrator
 ```bash
@@ -39,7 +54,7 @@ Write clean, pure code adhering to the contract. DO NOT write tests. Update hand
 ### Step 4: Invoke QA Engineer (Tests & Validation)
 ```bash
 Read AGENTS.md, then agent/roles/03-qa.md and agent/.state/handoff.json.
-Write unit/integration tests for the new code. Run suite.
+Write unit/integration tests for the new code. Run test suite.
 If any fail: increment qa_retry_count, set QA_FAILED, populate feedback_loop.
 If pass: set SUCCESS. Update handoff.json.
 ```
@@ -52,20 +67,17 @@ A test failure occurred. Inspect feedback_loop. Fix minimally. Update handoff.js
 
 ---
 
-## 3. Autonomous Milestone Runner (Single Command Mode)
-Let Orchestrator cycle through roles automatically:
+## 4. Quick Tasks (Hotfixes & Small Edits < 3 files)
 ```bash
-Read AGENTS.md, then agent/masters/EXECUTE.md and follow it exactly.
-MODE: FULLY AUTONOMOUS MULTI-AGENT EXECUTION.
-Execute milestone strictly following the Orchestrator-Developer-QA cycle.
-Do not ask questions. Stop only on SUCCESS or BLOCKED.
+Read AGENTS.md, then read agent/tools/QUICK-TASK.md and follow it exactly.
+Task: <describe bug/fix>
+USE SKILLS: debugging, self-review
 ```
 
 ---
 
-## 4. Quick Tasks (Small fixes < 3 files)
+## 5. State Verification & Sync
+To deterministically verify that `agent/.state/handoff.json` and `STATE.md` are valid:
 ```bash
-Read AGENTS.md, then read agent/tools/QUICK-TASK.md and follow it exactly.
-Task: <describe bug/fix>
-USE SKILLS: debugging
+python3 agent/tools/validate_state.py
 ```
