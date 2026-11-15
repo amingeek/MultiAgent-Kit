@@ -1,15 +1,17 @@
-# 🤖 Universal Multi-Agent Kit (v5.2 Production-Ready)
+# 🤖 Universal Multi-Agent Kit (v5.3 Production-Ready)
 
-[![Version](https://img.shields.io/badge/version-5.2%20Production--Ready-blue.svg)]()
-[![Architecture](https://img.shields.io/badge/architecture-Multi--Agent%20%7C%20Supervisor--Worker-orange.svg)]()
-[![Paradigm](https://img.shields.io/badge/paradigm-Contract--First%20%7C%20TDD%20%7C%20Anti--Looping-success.svg)]()
+[![Version](https://img.shields.io/badge/version-5.3%20Production--Ready-blue.svg)]()
+[![Architecture](https://img.shields.io/badge/architecture-Multi--Agent%20%7C%20Supervisor--Worker%20%7C%20Hierarchical%20DAG-orange.svg)]()
+[![Paradigm](https://img.shields.io/badge/paradigm-Contract--First%20%7C%20TDD%20%7C%20Granular%20Milestones-success.svg)]()
 
 A battle-tested, language-agnostic engineering framework designed to turn any AI CLI or IDE agent (such as Antigravity, Claude Code, Cursor Composer, or terminal agents) into a structured, autonomous software engineering team.
 
-This kit eliminates common LLM agent issues such as context window bloat, hallucinations, and infinite debugging loops by strictly enforcing **Role Segregation (SRP)**, a **Typed JSON Handoff Protocol**, and **Automated State Validation**.
+This kit eliminates common LLM agent issues such as context window bloat, hallucinations, and infinite debugging loops by strictly enforcing **Role Segregation (SRP)**, a **Typed JSON Handoff Protocol**, **Automated State Validation**, and **Hierarchical Epic-to-Milestone Decomposition**.
 
 ## ✨ Key Capabilities & Features
 
+- **Hierarchical Epic-to-Granular-Milestones Architecture (1:N):** Eliminates monolithic feature planning. A Master (`agent/masters/NN-*.md`) serves as a macro-architectural blueprint (Epic), which decomposes into **1 to 10+ granular, production-ready Milestones** (`agent/Milestones/NN-MM-*.md`).
+- **Deep Technical Milestone Specifications:** Every milestone contains exhaustive data contracts, type signatures, negative scenarios, edge cases (concurrency, timeouts, bounds), and a dedicated TDD verification matrix ($\le 5$ files, 1-2 engineering hours).
 - **Strict Separation of Concerns (SRP):** Agents are confined to isolated roles. The Developer implements business logic but *never* writes tests. The QA Engineer writes tests and failure-injection suites but *never* modifies application logic.
 - **Automated State Validation CLI (`validate_state.py`):** Deterministic Python validator checks `agent/.state/handoff.json` and `agent/STATE.md` at every transition.
 - **Anti-Looping Circuit Breaker:** The feedback loop between QA and Developer is strictly capped at 3 retries (`max_retries = 3`). If tests still fail, the task transitions to `BLOCKED` and halts for human intervention, preventing infinite token burnout.
@@ -19,18 +21,23 @@ This kit eliminates common LLM agent issues such as context window bloat, halluc
 
 ## 🏗️ System Architecture
 
-The kit utilizes a **Supervisor-Worker** architecture. The Orchestrator manages the task DAG (Directed Acyclic Graph) and coordinates specialized workers through a typed JSON state.
+The kit utilizes a **Supervisor-Worker** architecture combined with a **Hierarchical DAG**. The Master defines the overarching architecture and breaks down into sequential Milestones, which the Orchestrator coordinates through typed JSON state.
 
 ```mermaid
 graph TD
-    O[🧠 Orchestrator] -->|Plans & Updates handoff.json| H{Handoff State}
-    H -->|Delegates| A[📐 Architect]
-    H -->|Delegates| D[💻 Developer]
-    H -->|Delegates| Q[🧪 QA Engineer]
-    H -->|Delegates| S[🚀 DevOps & Security]
+    M[🏛️ Master: Epic Architectural Blueprint] -->|Decomposes into 1 to 10+ Milestones| DAG[📊 Milestone Execution DAG]
     
-    Q -.->|Fails: Feedback Loop <br> max_retries = 3| D
-    Q -.->|Passes: Success| O
+    subgraph Milestone Execution Cycle
+        DAG -->|Current Milestone| O[🧠 Orchestrator]
+        O -->|Prepares handoff.json| H{Handoff State}
+        H -->|Delegates Step 1: Contracts| A[📐 Architect]
+        H -->|Delegates Step 2: Implementation| D[💻 Developer]
+        H -->|Delegates Step 3: TDD Tests| Q[🧪 QA Engineer]
+        H -->|Delegates Step 4: Infra/CI| S[🚀 DevOps & Security]
+        
+        Q -.->|Fails: Feedback Loop <br> max_retries = 3| D
+        Q -.->|Passes: Success| O
+    end
 ```
 
 ## 📂 Directory Layout
@@ -41,15 +48,15 @@ graph TD
 ├── BOOTSTRAP.md              # Project initializer & tech stack detector
 └── agent/
     ├── HANDOFF_SCHEMA.md     # Strict JSON schema for agent communication
-    ├── RUNBOOK.md            # Comprehensive human operator manual
+    ├── RUNBOOK.md            # Comprehensive human operator manual (v5.3)
     ├── STATE.md              # Global execution state & quick tasks log
     ├── .state/
     │   └── handoff.json      # Single source of truth for agent transitions
     ├── rules/                # Non-negotiable engineering rules (00 to 10)
     ├── roles/                # Isolated agent personas (Orchestrator, Dev, QA, etc.)
     ├── skills/               # 15 actionable engineering procedures (always & on-demand)
-    ├── masters/              # Domain-driven feature planning & EXECUTE engine
-    ├── Milestones/           # Actionable step breakdowns and test evidence logs
+    ├── masters/              # Domain-driven epic architectural blueprints (01-*.md)
+    ├── Milestones/           # Granular, actionable milestone files (NN-MM-*.md) & INDEX
     └── tools/                # CLI tools (validate_state.py, NEW-FEATURE, QUICK-TASK)
 ```
 
@@ -60,7 +67,7 @@ graph TD
    ```bash
    Read BOOTSTRAP.md and follow it exactly.
    ```
-3. **Plan a New Feature:**
+3. **Plan a Feature (Generates Master Blueprint & Granular Milestones):**
    ```bash
    Read AGENTS.md, then read agent/tools/NEW-FEATURE.md and follow it exactly.
    Feature request: Add JWT Authentication with refresh tokens.

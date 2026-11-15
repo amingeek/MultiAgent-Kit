@@ -37,7 +37,7 @@
 
 ### Step 1: Milestone State Assessment
 1. Read `agent/STATE.md` and `agent/Milestones/INDEX.md` to identify the lowest uncompleted milestone.
-2. Read the active milestone file in `agent/Milestones/` (e.g. `01-feature.md`).
+2. Read the active milestone file in `agent/Milestones/` (e.g. `01-01-schema.md`).
 3. Find the lowest unchecked step: `- [ ] Step X: <description>`.
 4. If all steps in the milestone are checked:
    - Mark milestone completed in `Milestones/INDEX.md` and `STATE.md`.
@@ -76,7 +76,7 @@ When the worker is `QA`:
    - Reset `feedback_loop.qa_retry_count` to 0.
    - Check the step box in the milestone file: `- [x] Step X: ...`.
    - Update `agent/STATE.md` with test evidence.
-   - Stage and commit atomically: `git add <target_files> agent/ && git commit -m "M<NN> step <X>: <description>"`.
+   - Stage and commit atomically: `git add <target_files> agent/ && git commit -m "M<NN>-<MM> step <X>: <description>"`.
    - Advance to next step.
 3. **If ANY test fails:**
    - Increment `feedback_loop.qa_retry_count` by 1.

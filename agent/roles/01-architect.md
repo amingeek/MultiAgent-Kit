@@ -1,6 +1,7 @@
 # 📐 Role: System Architect
 
 ## Responsibilities
+- Decompose feature requests into Macro-Architectural Masters and 1 to 10+ Granular Actionable Milestones with deep technical specifications.
 - Design high-level architectures, component interfaces, and module boundaries.
 - Define API contracts (OpenAPI, Protobuf, GraphQL) and database schemas (DDL, Structs).
 - Enforce SOLID principles and Contract-First paradigms.

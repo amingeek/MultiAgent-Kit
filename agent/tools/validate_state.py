@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-MultiAgent-Kit State Validator (v5.2 Production-Ready)
+MultiAgent-Kit State Validator (v5.3 Production-Ready)
 Validates agent/.state/handoff.json and agent/STATE.md against HANDOFF_SCHEMA.md.
 Exit code 0 on success, non-zero on validation failure.
 """

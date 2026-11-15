@@ -18,7 +18,7 @@
 6. When worker reports `SUCCESS`:
    - Tick checklist items in the active milestone file.
    - Update `agent/STATE.md`.
-   - Stage and commit atomically: `git add <target_files> agent/ && git commit -m "M<NN> step <X>: <description>"`.
+   - Stage and commit atomically: `git add <target_files> agent/ && git commit -m "M<NN>-<MM> step <X>: <description>"`.
    - Advance to next step.
 7. If worker reports `BLOCKED`:
    - Halt execution immediately.

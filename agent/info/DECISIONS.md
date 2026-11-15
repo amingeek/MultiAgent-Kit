@@ -2,3 +2,4 @@
 | Date | Decision | Rationale | Scope |
 |---|---|---|---|
 | 2026-11-13 | Upgrade to v5.2 Production-Ready | Fleshed out all 15 skills from 3-line placeholders to comprehensive engineering protocols; added deterministic state validator `validate_state.py`; completed reconnaissance `00-info.md` and feature breakdown `NEW-FEATURE.md`; fixed broken skill paths in INDEX.md; added standard milestone template `_MILESTONE-TEMPLATE.md`. | System-Wide |
+| 2026-11-15 | Upgrade to v5.3: Hierarchical Master-to-Granular-Milestones Architecture | Decoupled Master into macro Epic Architectural Blueprint and decomposed into 1-to-N (up to 10+) granular Milestones with deep contract specifications, negative scenarios, edge-case resilience, and TDD verification matrix; updated NEW-FEATURE workflow, _MASTER-TEMPLATE, and _MILESTONE-TEMPLATE; aligned README, RUNBOOK, and workspace rules. | System-Wide |

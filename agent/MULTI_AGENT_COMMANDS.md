@@ -1,4 +1,4 @@
-# 🚀 Multi-Agent Terminal Command Guide (v5.2 Production-Ready)
+# 🚀 Multi-Agent Terminal Command Guide (v5.3 Production-Ready)
 
 Use these copy-paste commands in your AI CLI tool (Claude Code, Cursor Composer, Antigravity, etc.).
 
