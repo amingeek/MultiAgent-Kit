@@ -1,0 +1,60 @@
+# OS & Editor artifacts
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
+*.iml
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+env/
+
+# Node / JS
+node_modules/
+npm-debug.log*
+yarn-error.log*
+.pnp/
+.pnp.js
+
+# Go
+*.test
+*.out
+
+# Rust
+target/
+
+# Secrets — NEVER commit these
+.env
+*.env.local
+*.env.production
+*.pem
+*.key
+*.p12
+*.pfx
+secrets/
+credentials/
+
+# Build & Release artifacts
+*.log
+*.tmp
+*.bak
+dist/
+build/
+out/
+
+# Agent scratch / temp (agent/ tooling is committed; temp outputs are not)
+agent/.state/scratch/
+agent/.state/*.tmp

@@ -1,0 +1,4 @@
+# This directory stores formal post-milestone review documents.
+# After each milestone is completed, the QA or Orchestrator writes a review file here.
+# Naming convention: NN-MM-<slug>-review.md
+# Example: 01-01-schema-migration-review.md
