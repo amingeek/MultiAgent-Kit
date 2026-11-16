@@ -79,5 +79,13 @@ USE SKILLS: debugging, self-review
 ## 5. State Verification & Sync
 To deterministically verify that `agent/.state/handoff.json` and `STATE.md` are valid:
 ```bash
+./agent/tools/validate_state
+# Full audit:
+./agent/tools/validate_state --check-all
+# Visual dashboard:
+./agent/tools/validate_state --summary
+# Or via Make:
+make validate-all
+# Or via Python wrapper:
 python3 agent/tools/validate_state.py
 ```

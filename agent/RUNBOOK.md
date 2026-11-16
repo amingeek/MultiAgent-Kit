@@ -50,5 +50,6 @@
    - برای جلوگیری از Context Bloat، ارکستراتور می‌تواند هر نقش را به عنوان یک Subagent مستقل با کانتکست مجزا فراخوانی کند.
 
 ## عیب‌یابی و مدیریت وضعیت (Troubleshooting)
-- **بررسی سلامت وضعیت:** اجرای `python3 agent/tools/validate_state.py` در هر مرحله.
-- **خروج از حالت BLOCKED:** اپراتور انسانی تغییر لازم را اعمال کرده، `feedback_loop.qa_retry_count` را صفر کرده و وضعیت را به `IN_PROGRESS` برمی‌گرداند.
+- **بررسی سلامت وضعیت:** اجرای باینری گولنگ نیتیو `./agent/tools/validate_state` (یا دستور `make validate` / `python3 agent/tools/validate_state.py`).
+- **ممیزی عمیق سیستم:** اجرای `./agent/tools/validate_state --check-all` (یا `make validate-all`).
+- **خروج خودکار و ایمن از حالت BLOCKED:** اجرای `./agent/tools/validate_state --reset-retry` (یا `make reset-retry`) که شمارنده خطاها را ریست کرده و وضعیت را به `IN_PROGRESS` بازمی‌گرداند.

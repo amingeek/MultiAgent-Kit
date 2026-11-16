@@ -239,6 +239,13 @@ def main():
 
     root = get_repo_root()
 
+    # Prefer native compiled Go binary if present
+    go_bin = root / "agent" / "tools" / "validate_state"
+    if go_bin.is_file() and os.access(go_bin, os.X_OK) and os.environ.get("FORCE_PYTHON_VALIDATOR") != "1":
+        import subprocess
+        result = subprocess.run([str(go_bin)] + sys.argv[1:])
+        sys.exit(result.returncode)
+
     if args.touch:
         touch_timestamps(root)
         return

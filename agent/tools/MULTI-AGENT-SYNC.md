@@ -3,7 +3,7 @@
 > **Usage:**
 > In your AI CLI or terminal, run:
 > `Read AGENTS.md, then read agent/tools/MULTI-AGENT-SYNC.md and follow it exactly.`
-> Or run directly: `python3 agent/tools/validate_state.py`
+> Or run directly: `./agent/tools/validate_state` (or `python3 agent/tools/validate_state.py`)
 
 ---
 
@@ -21,7 +21,8 @@ Ensures that the multi-agent system state is completely synchronized, valid, and
 ### Stage 1: Automated Schema Validation
 Run the validator tool:
 ```bash
-python3 agent/tools/validate_state.py
+./agent/tools/validate_state --check-all
+# (or: python3 agent/tools/validate_state.py --check-all)
 ```
 If errors are reported, fix `agent/.state/handoff.json` or `agent/STATE.md` immediately until the validator outputs:
 `[OK] State validation successful.`

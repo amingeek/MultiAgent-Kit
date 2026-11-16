@@ -37,6 +37,7 @@ You are a Principal Systems Architect initializing a robust multi-agent engineer
 4. Update `agent/.state/handoff.json` and `agent/STATE.md`.
 5. Verify workspace state with:
    ```bash
-   python3 agent/tools/validate_state.py --check-all
+   ./agent/tools/validate_state --check-all
+   # (or: python3 agent/tools/validate_state.py --check-all)
    ```
 6. Output the next step command: `Read AGENTS.md, then read agent/tools/NEW-FEATURE.md and follow it exactly.`

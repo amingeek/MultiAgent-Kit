@@ -15,4 +15,4 @@
    - Set `status` to `IN_PROGRESS`.
    - Set `current_step.assigned_role` to `qa`.
    - Set `current_step.role_file` to `agent/roles/03-qa.md`.
-6. Run `python3 agent/tools/validate_state.py`.
+6. Run `./agent/tools/validate_state` (or `python3 agent/tools/validate_state.py`).

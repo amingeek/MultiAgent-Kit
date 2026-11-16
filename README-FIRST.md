@@ -48,12 +48,19 @@
    MODE: FULLY AUTONOMOUS MULTI-AGENT EXECUTION.
    ```
 
-## 🛠️ ابزار اعتبارسنجی وضعیت (Validation Tool):
-برای اطمینان از سلامت ساختار جیسون، قوانین ضد لوپ و یکپارچگی فایل‌ها:
+## 🛠️ ابزار اعتبارسنجی وضعیت (Go Native & Python):
+ابزار اعتبارسنجی اکنون با **گولنگ نیتیو (Go Native)** بازنویسی و کامپایل شده است (همراه با رپر پایتون و میک‌فایل):
 ```bash
+# اجرای مستقیم باینری کامپایل‌شده گولنگ:
+./agent/tools/validate_state --check-all
+
+# مشاهده داشبورد تصویری وضعیت جاری پروژه:
+./agent/tools/validate_state --summary
+
+# یا از طریق Makefile:
+make validate-all
+make summary
+
+# یا اجرای رپر پایتون:
 python3 agent/tools/validate_state.py --check-all
-```
-برای مشاهده خلاصه وضعیت فعلی پروژه:
-```bash
-python3 agent/tools/validate_state.py --summary
 ```

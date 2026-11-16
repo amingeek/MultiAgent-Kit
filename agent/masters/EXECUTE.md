@@ -90,4 +90,4 @@ When the worker is `QA`:
      - Assign back to `roles/02-developer.md`.
 
 ### Step 5: Post-Step Health Check
-Run `python3 agent/tools/validate_state.py` to ensure state validity after every transition.
+Run `./agent/tools/validate_state` (or `python3 agent/tools/validate_state.py`) to ensure state validity after every transition.

@@ -13,7 +13,7 @@ This kit eliminates common LLM agent issues such as context window bloat, halluc
 - **Hierarchical Epic-to-Granular-Milestones Architecture (1:N):** Eliminates monolithic feature planning. A Master (`agent/masters/NN-*.md`) serves as a macro-architectural blueprint (Epic), which decomposes into **1 to 10+ granular, production-ready Milestones** (`agent/Milestones/NN-MM-*.md`).
 - **Deep Technical Milestone Specifications:** Every milestone contains exhaustive data contracts, type signatures, negative scenarios, edge cases (concurrency, timeouts, bounds), and a dedicated TDD verification matrix ($\le 5$ files, 1-2 engineering hours).
 - **Strict Separation of Concerns (SRP):** Agents are confined to isolated roles. The Developer implements business logic but *never* writes tests. The QA Engineer writes tests and failure-injection suites but *never* modifies application logic.
-- **Automated State Validation CLI (`validate_state.py`):** Deterministic Python validator checks `agent/.state/handoff.json` and `agent/STATE.md` at every transition.
+- **Automated State Validation CLI (`validate_state`):** High-performance, single-binary compiled Go validator (with Python fallback) checks `agent/.state/handoff.json` and `agent/STATE.md` at every transition.
 - **Anti-Looping Circuit Breaker:** The feedback loop between QA and Developer is strictly capped at 3 retries (`max_retries = 3`). If tests still fail, the task transitions to `BLOCKED` and halts for human intervention, preventing infinite token burnout.
 - **Battle-Tested Skills Catalog:** 15 comprehensive engineering skills (4 `always` procedures for token budgeting & checkpointing, and 11 `on-demand` procedures covering root-cause debugging, zero-downtime DB migrations, security threat modeling, etc.).
 - **Subagent-Ready Architecture:** Clean separation allows the Orchestrator to dispatch worker roles as isolated subagents with zero context contamination.
@@ -80,8 +80,16 @@ graph TD
 
 ## 🛠️ State Verification Tool
 
-Run the built-in deterministic state validator at any time:
+Run the built-in deterministic state validator at any time using the native Go binary, Make, or Python:
 ```bash
+./agent/tools/validate_state
+# Full audit of rules, skills, and templates:
+./agent/tools/validate_state --check-all
+# Visual dashboard:
+./agent/tools/validate_state --summary
+# Or via Make:
+make validate-all
+# Or via Python wrapper:
 python3 agent/tools/validate_state.py
 ```
 

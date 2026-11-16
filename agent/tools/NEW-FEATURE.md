@@ -62,7 +62,7 @@ Every milestone file MUST include:
 ---
 
 ### Step 5: Validate & Output Next Command
-Run: `python3 agent/tools/validate_state.py` to confirm state validity.
+Run: `./agent/tools/validate_state` (or `python3 agent/tools/validate_state.py`) to confirm state validity.
 Prompt the user with the exact command to start execution:
 ```bash
 Read AGENTS.md, then agent/masters/EXECUTE.md and follow it exactly.

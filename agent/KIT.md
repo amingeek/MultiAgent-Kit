@@ -7,9 +7,8 @@
 - Enhancements in 5.3:
   - **Hierarchical Epic-to-Granular-Milestones Architecture:** 1 Master acts as an architectural blueprint decomposing into 1 to 10+ granular, isolated Milestones (`NN-01` to `NN-10+`).
   - **Deep Technical Milestone Specifications:** Exhaustive contracts, type signatures, invariants, negative scenarios, and edge-case resilience gates in `_MILESTONE-TEMPLATE.md`.
-  - **Enhanced DAG Milestone Generation:** Upgraded `NEW-FEATURE.md` and `_MASTER-TEMPLATE.md` to formulate multi-milestone execution graphs.
-- Enhancements in 5.2:
-  - Automated state validation tool (`agent/tools/validate_state.py`).
+  - **Go-Native State Validation CLI:** High-performance, compiled Go binary (`agent/tools/validate_state`) with deep integrity auditing (`--check-all`), visual dashboards (`--summary`), and automated recovery (`--reset-retry`).
+  - Automated state validation tool (`agent/tools/validate_state` & `validate_state.py`).
   - Fully articulated, battle-tested on-demand and always skills.
   - Complete domain feature and milestone decomposition workflows (`NEW-FEATURE.md`, `_MILESTONE-TEMPLATE.md`).
   - High-precision project reconnaissance engine (`00-info.md`).

@@ -12,4 +12,4 @@
    - Set `status` to `SUCCESS`.
    - Set `current_step.assigned_role` to `orchestrator`.
    - Set `current_step.role_file` to `agent/roles/00-orchestrator.md`.
-5. Run `python3 agent/tools/validate_state.py`.
+5. Run `./agent/tools/validate_state` (or `python3 agent/tools/validate_state.py`).
