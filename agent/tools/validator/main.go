@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"time"
 )
@@ -69,6 +70,16 @@ type HandoffData struct {
 	LastUpdated         string                `json:"last_updated"`
 }
 
+type ProjectStats struct {
+	MastersCount     int
+	TotalMilestones  int
+	CompletedCount   int
+	InProgressCount  int
+	BlockedCount     int
+	NotStartedCount  int
+	CompletionRatio  float64
+}
+
 func findRepoRoot() (string, error) {
 	// First check current working directory
 	cwd, err := os.Getwd()
@@ -78,7 +89,7 @@ func findRepoRoot() (string, error) {
 		}
 		// Check parent directories
 		dir := cwd
-		for i := 0; i < 4; i++ {
+		for i := 0; i < 5; i++ {
 			parent := filepath.Dir(dir)
 			if parent == dir {
 				break
@@ -95,7 +106,7 @@ func findRepoRoot() (string, error) {
 	if err == nil {
 		exeDir := filepath.Dir(exePath)
 		dir := exeDir
-		for i := 0; i < 4; i++ {
+		for i := 0; i < 5; i++ {
 			if isRepoRoot(dir) {
 				return dir, nil
 			}
@@ -257,7 +268,24 @@ func validateAllIntegrity(root string, errors *[]string, warnings *[]string) {
 		}
 	}
 
-	// 2. Check skills catalog
+	// 2. Check roles 00 to 05
+	rolesDir := filepath.Join(root, "agent", "roles")
+	if !dirExists(rolesDir) {
+		*errors = append(*errors, fmt.Sprintf("Missing roles directory at %s", rolesDir))
+	} else {
+		expectedRoles := []string{
+			"00-orchestrator.md", "01-architect.md", "02-developer.md",
+			"03-qa.md", "04-security-reviewer.md", "05-devops.md",
+		}
+		for _, r := range expectedRoles {
+			path := filepath.Join(rolesDir, r)
+			if !fileExists(path) {
+				*errors = append(*errors, fmt.Sprintf("Missing role file: agent/roles/%s", r))
+			}
+		}
+	}
+
+	// 3. Check skills catalog
 	skillsIndex := filepath.Join(root, "agent", "skills", "INDEX.md")
 	if !fileExists(skillsIndex) {
 		*errors = append(*errors, fmt.Sprintf("Missing skills index at %s", skillsIndex))
@@ -282,13 +310,13 @@ func validateAllIntegrity(root string, errors *[]string, warnings *[]string) {
 		}
 	}
 
-	// 3. Check Milestones index
+	// 4. Check Milestones index
 	milestonesIndex := filepath.Join(root, "agent", "Milestones", "INDEX.md")
 	if !fileExists(milestonesIndex) {
 		*errors = append(*errors, fmt.Sprintf("Missing milestones index at %s", milestonesIndex))
 	}
 
-	// 4. Check templates
+	// 5. Check templates
 	masterTpl := filepath.Join(root, "agent", "masters", "_MASTER-TEMPLATE.md")
 	if !fileExists(masterTpl) {
 		*warnings = append(*warnings, "Missing master template at agent/masters/_MASTER-TEMPLATE.md")
@@ -298,6 +326,93 @@ func validateAllIntegrity(root string, errors *[]string, warnings *[]string) {
 	if !fileExists(milestoneTpl) {
 		*warnings = append(*warnings, "Missing milestone template at agent/Milestones/_MILESTONE-TEMPLATE.md")
 	}
+
+	// 6. Check PRD.md presence
+	prdPath := filepath.Join(root, "PRD.md")
+	if !fileExists(prdPath) {
+		*warnings = append(*warnings, "PRD.md not found at repository root (run 'mak init-prd' to create template)")
+	}
+}
+
+func calculateStats(root string) ProjectStats {
+	stats := ProjectStats{}
+
+	// Count Masters (excluding templates and docs)
+	mastersDir := filepath.Join(root, "agent", "masters")
+	if dirExists(mastersDir) {
+		entries, err := os.ReadDir(mastersDir)
+		if err == nil {
+			for _, e := range entries {
+				name := e.Name()
+				if !e.IsDir() && strings.HasSuffix(name, ".md") &&
+					!strings.HasPrefix(name, "_") &&
+					name != "README.md" && name != "EXECUTE.md" && name != "00-info.md" {
+					stats.MastersCount++
+				}
+			}
+		}
+	}
+
+	// Read Milestones INDEX.md
+	milestonesIndex := filepath.Join(root, "agent", "Milestones", "INDEX.md")
+	if fileExists(milestonesIndex) {
+		content, err := os.ReadFile(milestonesIndex)
+		if err == nil {
+			lines := strings.Split(string(content), "\n")
+			rowRegex := regexp.MustCompile(`^\|\s*(M\d+-\d+)\s*\|`)
+			for _, line := range lines {
+				line = strings.TrimSpace(line)
+				if rowRegex.MatchString(line) {
+					stats.TotalMilestones++
+					upperLine := strings.ToUpper(line)
+					if strings.Contains(upperLine, "COMPLETED") || strings.Contains(upperLine, "SUCCESS") {
+						stats.CompletedCount++
+					} else if strings.Contains(upperLine, "IN_PROGRESS") {
+						stats.InProgressCount++
+					} else if strings.Contains(upperLine, "BLOCKED") {
+						stats.BlockedCount++
+					} else {
+						stats.NotStartedCount++
+					}
+				}
+			}
+		}
+	}
+
+	if stats.TotalMilestones > 0 {
+		stats.CompletionRatio = float64(stats.CompletedCount) / float64(stats.TotalMilestones) * 100.0
+	}
+
+	return stats
+}
+
+func printStats(stats ProjectStats) {
+	boldColor := "\033[1m"
+	resetColor := "\033[0m"
+	greenColor := "\033[92m"
+	cyanColor := "\033[96m"
+	yellowColor := "\033[93m"
+	redColor := "\033[91m"
+
+	// Progress bar
+	barLength := 24
+	completedBlocks := int((stats.CompletionRatio / 100.0) * float64(barLength))
+	if completedBlocks > barLength {
+		completedBlocks = barLength
+	}
+	progressBar := strings.Repeat("█", completedBlocks) + strings.Repeat("░", barLength-completedBlocks)
+
+	fmt.Printf("\n%s═══════════════════════════════════════════════════════════%s\n", boldColor, resetColor)
+	fmt.Printf("%s 📊 MultiAgent-Kit Project Execution Metrics (v6.0)%s\n", boldColor, resetColor)
+	fmt.Printf("%s═══════════════════════════════════════════════════════════%s\n", boldColor, resetColor)
+	fmt.Printf("  %sDomain Masters (Epics):%s   %d\n", boldColor, resetColor, stats.MastersCount)
+	fmt.Printf("  %sTotal Milestones:%s         %d\n", boldColor, resetColor, stats.TotalMilestones)
+	fmt.Printf("  %sCompleted:%s                %s%d%s\n", boldColor, resetColor, greenColor, stats.CompletedCount, resetColor)
+	fmt.Printf("  %sIn Progress:%s              %s%d%s\n", boldColor, resetColor, cyanColor, stats.InProgressCount, resetColor)
+	fmt.Printf("  %sBlocked:%s                  %s%d%s\n", boldColor, resetColor, redColor, stats.BlockedCount, resetColor)
+	fmt.Printf("  %sNot Started:%s              %s%d%s\n", boldColor, resetColor, yellowColor, stats.NotStartedCount, resetColor)
+	fmt.Printf("  %sProgress Bar:%s             [%s%s%s] %.1f%%\n", boldColor, resetColor, greenColor, progressBar, resetColor, stats.CompletionRatio)
+	fmt.Printf("%s═══════════════════════════════════════════════════════════%s\n\n", boldColor, resetColor)
 }
 
 func printSummary(data *HandoffData) {
@@ -322,7 +437,7 @@ func printSummary(data *HandoffData) {
 	}
 
 	fmt.Printf("\n%s═══════════════════════════════════════════════════════════%s\n", boldColor, resetColor)
-	fmt.Printf("%s 🤖 MultiAgent-Kit System Dashboard (v5.3 Go Native)%s\n", boldColor, resetColor)
+	fmt.Printf("%s 🤖 MultiAgent-Kit System Dashboard (v6.0 Go Native)%s\n", boldColor, resetColor)
 	fmt.Printf("%s═══════════════════════════════════════════════════════════%s\n", boldColor, resetColor)
 	fmt.Printf("  %sProject Name:%s      %s\n", boldColor, resetColor, data.ProjectName)
 	fmt.Printf("  %sTech Stack:%s        %s\n", boldColor, resetColor, tech)
@@ -412,13 +527,98 @@ func resetRetryCount(root string) error {
 	return nil
 }
 
+func initPRDTemplate(root string) error {
+	prdPath := filepath.Join(root, "PRD.md")
+	if fileExists(prdPath) {
+		return fmt.Errorf("PRD.md already exists at %s", prdPath)
+	}
+
+	defaultPRD := `# Product Requirements Document (PRD)
+
+> **Instructions for the Operator:**
+> Fill in the sections below to describe your product idea, architecture expectations, and feature domains.
+> When ready, run in your AI CLI or terminal:
+> ` + "`" + `Read BOOTSTRAP.md and follow it exactly.` + "`" + `
+> MultiAgent-Kit will bootstrap the project structure and generate all Domain Masters (` + "`" + `agent/masters/NN-*.md` + "`" + `).
+
+---
+
+## 1. Executive Summary & Vision
+- **Product Name:** <Enter product name>
+- **One-Sentence Description:** <High-level elevator pitch>
+- **Target Audience / End Users:** <Who uses this product?>
+- **Core Value Proposition:** <Why does this product exist?>
+
+---
+
+## 2. Technical Stack & Architecture Preferences
+- **Preferred Languages:** <e.g., Go, TypeScript, Rust, Python, etc.>
+- **Frameworks & Libraries:** <e.g., Gin, FastAPI, React, Next.js, etc.>
+- **Database & Persistence:** <e.g., PostgreSQL, SQLite, Redis, MongoDB>
+- **Communication Protocols:** <e.g., REST, GraphQL, gRPC, WebSocket>
+- **Infrastructure / Deployment:** <e.g., Docker, Kubernetes, Serverless, Bare Metal>
+
+---
+
+## 3. High-Level Feature Domains (Masters / Epics)
+*List all major domains of your application. Each domain will be translated into a dedicated Master Epic (` + "`" + `agent/masters/01-*.md` + "`" + `, ` + "`" + `02-*.md` + "`" + `, etc.) during bootstrap. There is no limit on the number of domains!*
+
+### Domain 1: <e.g. Identity & Access Management (IAM)>
+- **Summary:** User registration, authentication, authorization, JWT sessions, MFA.
+- **Key Capabilities:**
+  - Secure signup & login
+  - Token refresh and revocation
+  - Role-based access control (RBAC)
+
+### Domain 2: <e.g. Core Business Domain / Service Logic>
+- **Summary:** Primary application logic and workflows.
+- **Key Capabilities:**
+  - CRUD operations on core entities
+  - Business rule validations
+  - Transaction integrity
+
+### Domain 3: <e.g. Data Ingestion & Storage / API Gateway>
+- **Summary:** External integrations, background workers, or event-driven pipelines.
+- **Key Capabilities:**
+  - Async jobs / queues
+  - Rate limiting & caching
+  - Webhooks & external notifications
+
+---
+
+## 4. Non-Functional Requirements & Security
+- **Performance Budget:** <e.g. p99 response time < 100ms, concurrency targets>
+- **Security & Compliance:** <e.g. OWASP Top 10 compliance, encryption at rest and in transit>
+- **Availability & Resilience:** <e.g. 99.9% uptime, graceful degradation on downstream failure>
+- **Test Coverage Target:** <e.g. >= 80% coverage on domain logic with automated TDD suites>
+
+---
+
+## 5. Scope Boundaries & Constraints
+- **In-Scope (v1.0 Launch):**
+  - Features strictly required for MVP / v1.0
+- **Out-of-Scope (Future Iterations):**
+  - Features intentionally deferred to later versions
+- **Off-Limits Directories / Legacy Code:**
+  - Any files or folders AI agents must never modify
+`
+	if err := os.WriteFile(prdPath, []byte(defaultPRD), 0644); err != nil {
+		return err
+	}
+
+	fmt.Printf("[OK] Initialized PRD.md template at %s\n", prdPath)
+	return nil
+}
+
 func main() {
 	var checkAll bool
 	var summary bool
 	var touch bool
 	var resetRetry bool
+	var showStats bool
+	var initPRD bool
 
-	flag.BoolVar(&checkAll, "check-all", false, "Perform deep audit of all rules, skills, and templates")
+	flag.BoolVar(&checkAll, "check-all", false, "Perform deep audit of all rules, skills, templates, PRD, and state")
 	flag.BoolVar(&checkAll, "a", false, "Alias for --check-all")
 	flag.BoolVar(&summary, "summary", false, "Display visual execution dashboard")
 	flag.BoolVar(&summary, "s", false, "Alias for --summary")
@@ -426,23 +626,63 @@ func main() {
 	flag.BoolVar(&touch, "t", false, "Alias for --touch")
 	flag.BoolVar(&resetRetry, "reset-retry", false, "Reset QA retry count to 0 and unblock")
 	flag.BoolVar(&resetRetry, "r", false, "Alias for --reset-retry")
+	flag.BoolVar(&showStats, "stats", false, "Display project execution stats, milestone counts, and progress bar")
+	flag.BoolVar(&initPRD, "init-prd", false, "Create default PRD.md template if not present")
 
 	flag.Usage = func() {
-		fmt.Fprintf(os.Stderr, "MultiAgent-Kit State & Integrity Validator (v5.3 Go Native)\n\nUsage:\n")
-		fmt.Fprintf(os.Stderr, "  validate_state              # Validate state & handoff files\n")
-		fmt.Fprintf(os.Stderr, "  validate_state --check-all  # Deep audit: rules, skills, templates, state\n")
-		fmt.Fprintf(os.Stderr, "  validate_state --summary    # Print visual execution dashboard\n")
-		fmt.Fprintf(os.Stderr, "  validate_state --touch      # Sync timestamps to current UTC\n")
-		fmt.Fprintf(os.Stderr, "  validate_state --reset-retry# Reset QA retry count to 0\n\nFlags:\n")
+		fmt.Fprintf(os.Stderr, "MultiAgent-Kit CLI & State Validator (v6.0 Go Native)\n\nUsage:\n")
+		fmt.Fprintf(os.Stderr, "  mak [command | flag]\n\nCommands:\n")
+		fmt.Fprintf(os.Stderr, "  validate              # Validate state & handoff files (default)\n")
+		fmt.Fprintf(os.Stderr, "  check-all, -a         # Deep audit: rules, roles, skills, templates, PRD, state\n")
+		fmt.Fprintf(os.Stderr, "  summary, status, -s   # Print visual execution dashboard\n")
+		fmt.Fprintf(os.Stderr, "  stats                 # Print milestone breakdown & progress bar\n")
+		fmt.Fprintf(os.Stderr, "  touch, -t             # Sync timestamps to current UTC\n")
+		fmt.Fprintf(os.Stderr, "  reset-retry, -r       # Reset QA retry count to 0 and unblock\n")
+		fmt.Fprintf(os.Stderr, "  init-prd              # Initialize PRD.md template\n\nFlags:\n")
 		flag.PrintDefaults()
 	}
 
 	flag.Parse()
 
+	// Also support positional subcommands like `mak summary`, `mak stats`, etc.
+	posArgs := flag.Args()
+	if len(posArgs) > 0 {
+		switch strings.ToLower(posArgs[0]) {
+		case "check-all", "check", "audit":
+			checkAll = true
+		case "summary", "status", "dashboard":
+			summary = true
+		case "stats", "metrics", "progress":
+			showStats = true
+		case "touch", "sync":
+			touch = true
+		case "reset-retry", "reset", "unblock":
+			resetRetry = true
+		case "init-prd", "prd":
+			initPRD = true
+		case "validate":
+			// Default validation mode
+		case "help":
+			flag.Usage()
+			return
+		default:
+			fmt.Fprintf(os.Stderr, "Unknown subcommand: %s (run 'mak help' for usage)\n", posArgs[0])
+			os.Exit(1)
+		}
+	}
+
 	root, err := findRepoRoot()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "[FAIL] %v\n", err)
 		os.Exit(1)
+	}
+
+	if initPRD {
+		if err := initPRDTemplate(root); err != nil {
+			fmt.Fprintf(os.Stderr, "[FAIL] %v\n", err)
+			os.Exit(1)
+		}
+		return
 	}
 
 	if touch {
@@ -474,6 +714,11 @@ func main() {
 		printSummary(data)
 	}
 
+	if showStats {
+		stats := calculateStats(root)
+		printStats(stats)
+	}
+
 	for _, w := range warnings {
 		fmt.Fprintf(os.Stderr, "\033[93m[WARN]\033[0m %s\n", w)
 	}
@@ -486,10 +731,10 @@ func main() {
 		os.Exit(1)
 	}
 
-	if !summary {
+	if !summary && !showStats {
 		fmt.Println("\033[92m[OK]\033[0m State validation successful. handoff.json and STATE.md are valid.")
 		if checkAll {
-			fmt.Println("\033[92m[OK]\033[0m Full kit integrity check passed: rules, skills, and templates verified.")
+			fmt.Println("\033[92m[OK]\033[0m Full kit integrity check passed: rules, roles, skills, and templates verified.")
 		}
 	}
 }

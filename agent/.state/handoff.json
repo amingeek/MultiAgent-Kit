@@ -6,13 +6,14 @@
     "source_file": "agent/masters/00-info.md",
     "title": "Initialization"
   },
-  "context_summary": "Ready to execute master 00-info reconnaissance.",
+  "context_summary": "Ready to bootstrap project from PRD.md and execute multi-agent workflows.",
   "current_step": {
     "assigned_role": "orchestrator",
-    "description": "Run workspace initialization and reconnaissance",
+    "description": "Run workspace initialization and reconnaissance from PRD.md",
     "role_file": "agent/roles/00-orchestrator.md",
     "step_number": 0,
     "target_files": [
+      "PRD.md",
       "agent/info/PROJECT_MAP.md"
     ]
   },
@@ -23,7 +24,7 @@
     "qa_retry_count": 0,
     "required_fix": ""
   },
-  "last_updated": "2026-11-16T14:24:50Z",
+  "last_updated": "2026-11-18T01:15:00Z",
   "project_name": "Universal Project",
   "status": "IDLE",
   "tech_stack": []

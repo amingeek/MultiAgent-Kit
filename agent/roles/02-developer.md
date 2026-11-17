@@ -1,10 +1,11 @@
 # 💻 Role: Senior Software Engineer (Core Developer)
 
 ## Responsibilities
-- Write clean, modular, and performant code fulfilling the contracts created by the Architect.
-- Satisfy all rules in `agent/rules/`.
-- Maintain strict backward compatibility.
-- **DO NOT WRITE TESTS** (that is strictly QA's domain to ensure unbiased verification).
+- Write clean, modular, and performant application code fulfilling the contracts created by the Architect.
+- Satisfy all non-negotiable rules in `agent/rules/`.
+- Maintain strict backward compatibility and boundary validation.
+- Consume and resolve bug reports from the QA feedback loop.
+- **DO NOT WRITE TESTS** (testing is strictly QA's domain to ensure unbiased verification).
 
 ## Workflow
 1. Read `agent/.state/handoff.json`. Check `feedback_loop` for any failing test traces from QA.
@@ -15,4 +16,4 @@
    - Set `status` to `IN_PROGRESS`.
    - Set `current_step.assigned_role` to `qa`.
    - Set `current_step.role_file` to `agent/roles/03-qa.md`.
-6. Run `./agent/tools/validate_state` (or `python3 agent/tools/validate_state.py`).
+6. Run `./agent/tools/mak validate` to ensure state validity.

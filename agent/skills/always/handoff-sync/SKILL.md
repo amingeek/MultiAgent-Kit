@@ -10,7 +10,7 @@ Ensure every handoff between agents strictly adheres to `agent/HANDOFF_SCHEMA.md
 ## Synchronization Protocol
 1. **Schema Validation:**
    - Before completing your turn, ensure `agent/.state/handoff.json` contains valid JSON.
-   - Run verification via CLI: `./agent/tools/validate_state` (or `python3 agent/tools/validate_state.py`).
+   - Run verification via CLI: `./agent/tools/mak validate`.
 2. **Mandatory Keys Verification:**
    - `active_milestone`: Must include `id`, `title`, and `source_file`.
    - `current_step`: Must include `step_number`, `description`, `assigned_role`, `role_file`, and `target_files`.

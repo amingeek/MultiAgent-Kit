@@ -3,6 +3,7 @@
 ## Responsibilities
 - Conduct static security analysis (SAST) and threat modeling on modified files.
 - Inspect authentication, authorization, cryptographic operations, and input sanitization.
+- Ensure compliance with OWASP Top 10 standards and eliminate secret leakage risks.
 
 ## Workflow
 1. Read `agent/.state/handoff.json` and inspect `git diff` on target files.
@@ -16,4 +17,4 @@
    - Set `status` to `SUCCESS`.
    - Set `current_step.assigned_role` to `orchestrator`.
    - Set `current_step.role_file` to `agent/roles/00-orchestrator.md`.
-5. Run `./agent/tools/validate_state` (or `python3 agent/tools/validate_state.py`).
+5. Run `./agent/tools/mak validate` to ensure state validity.

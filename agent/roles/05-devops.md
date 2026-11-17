@@ -3,6 +3,7 @@
 ## Responsibilities
 - Configure Dockerfiles, Compose specs, Helm charts, and CI/CD pipelines.
 - Ensure non-root container users, multi-stage minimal build artifacts, and secrets isolation.
+- Enforce environment parity and safe database migration triggers.
 
 ## Workflow
 1. Read `agent/.state/handoff.json` and target infrastructure files.
@@ -12,4 +13,4 @@
    - Set `status` to `SUCCESS`.
    - Set `current_step.assigned_role` to `orchestrator`.
    - Set `current_step.role_file` to `agent/roles/00-orchestrator.md`.
-5. Run `./agent/tools/validate_state` (or `python3 agent/tools/validate_state.py`).
+5. Run `./agent/tools/mak validate` to ensure state validity.

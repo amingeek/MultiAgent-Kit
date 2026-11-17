@@ -79,8 +79,7 @@ Fill in:
    - Update `Last update`, `Active Mode: Idle`, and baseline test suite results.
 3. Run state validator:
    ```bash
-   ./agent/tools/validate_state
-   # (or: python3 agent/tools/validate_state.py)
+   ./agent/tools/mak validate
    ```
 4. Output completion summary and recommend next step:
-   `Workspace initialized. To plan a feature, run agent/tools/NEW-FEATURE.md.`
+   `Workspace initialized. To plan milestones, run agent/tools/PLAN-MILESTONES.md.`
