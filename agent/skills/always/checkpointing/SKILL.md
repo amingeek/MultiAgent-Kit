@@ -1,23 +1,22 @@
 ---
 name: checkpointing
 type: always
-description: Interruption recovery and atomic state checkpointing across steps.
+description: Atomic state checkpointing and seamless interruption recovery across agent turns.
 ---
-# Atomic Checkpointing
+# Atomic Checkpointing & State Recovery
 
-Prevent context loss and enable zero-friction task resumption across interruptions or agent role transitions.
+Ensure zero loss of progress and deterministic task resumption across network drops, session resets, or subagent handoffs.
 
-## Checkpointing Procedure
-1. **Atomic Step Completion:**
-   - Commit changes atomically per completed step: `git add <files>` then `git commit -m "M<NN> step <X>: <description>"`.
-   - Never leave uncommitted dirty work in repo after completing a step.
-2. **State File Synchronization:**
-   - Immediately update `agent/STATE.md`:
-     - Set `Last update` to current ISO timestamp.
-     - Append completed step to `Quick Tasks Log` or update `Milestones Summary`.
-     - Record CLI test execution evidence under `Execution Evidence Log`.
-3. **Interruption Recovery Protocol:**
-   - When woken up or starting a session: inspect `agent/.state/handoff.json` first.
-   - If `status == "IN_PROGRESS"`, resume from `current_step.target_files`.
-   - If `status == "QA_FAILED"`, read `feedback_loop.error_logs` and resolve failure.
-   - If `status == "BLOCKED"`, do not proceed autonomously; report blocker to operator.
+## Checkpoint Protocol
+1. **Atomic Step Commits:**
+   - Commit exactly once per verified step: `git add <target_files> agent/ && git commit -m "M<NN>-<MM> step <X>: <description>"`
+   - Never leave dirty uncommitted files after a step transition.
+2. **Synchronous State Persistence:**
+   - Immediately update `agent/STATE.md` with timestamp, completed task log, and CLI test evidence.
+   - Synchronize timestamps via Go CLI: `./agent/tools/mak touch`.
+3. **Session Resumption Heuristic:**
+   - On session startup, read `agent/.state/handoff.json` first:
+     - If `status == "IN_PROGRESS"`: Resume work on `current_step.target_files`.
+     - If `status == "QA_FAILED"`: Inspect `feedback_loop.error_logs`, reproduce, and fix.
+     - If `status == "BLOCKED"`: Halt immediately and notify human operator. Do not loop.
+     - If `status == "SUCCESS"` / `"IDLE"`: Advance to lowest unchecked step in active milestone.

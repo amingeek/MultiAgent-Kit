@@ -1,6 +1,6 @@
 # Global System State
 
-- Last update: 2026-11-18T01:15:00Z
+- Last update: 2026-11-18T01:25:00Z
 - Active Mode: Idle
 - Currently executing: None
 - Current branch: main
@@ -18,6 +18,7 @@ See `agent/Milestones/INDEX.md`
 - 2026-11-16: Comprehensive Engineering Hardening & Production Polish | Files: BOOTSTRAP, README-FIRST, validate_state.py, rules, info, examples, .gitignore | Verification: python3 agent/tools/validate_state.py --check-all (passed)
 - 2026-11-16: Re-engineered State Validator to Go Native Binary | Files: agent/tools/validator/main.go, agent/tools/validator/go.mod, Makefile, docs | Verification: ./agent/tools/validate_state --check-all (passed)
 - 2026-11-18: Upgrade to v6.0 Go-Native & PRD-Driven Multi-Agent Framework | Files: PRD.md, BOOTSTRAP.md, PLAN-MILESTONES.md, EXECUTE.md, agent/tools/mak, Makefile, roles, docs | Verification: ./agent/tools/mak check-all (passed)
+- 2026-11-18: Upgrade to v6.1 High-Leverage Professional Skills Overhaul | Files: agent/skills/always/*, agent/skills/on-demand/*, INDEX.md, KIT.md, README.md, README-FIRST.md | Verification: make test && ./agent/tools/mak check-all (passed)
 
 ## Execution Evidence Log
 - `./agent/tools/mak check-all` -> `[OK] State validation successful. handoff.json and STATE.md are valid. [OK] Full kit integrity check passed: rules, roles, skills, and templates verified.`

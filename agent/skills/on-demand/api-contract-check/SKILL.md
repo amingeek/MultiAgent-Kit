@@ -1,30 +1,50 @@
 ---
 name: api-contract-check
 type: on-demand
-description: Verification of public API/DTO backward compatibility and additive evolution.
+description: Strict backward compatibility auditing for REST, Protobuf, and JSON schemas. Use when modifying APIs, DTOs, or endpoints.
 ---
-# API & DTO Contract Verification Standard
+# API & Wire-Format Contract Verification Protocol
 
-Ensure all API modifications strictly obey additive evolution rules and never break existing clients.
+Enforce additive-only evolution on public and internal interfaces. Any change breaking existing clients without a coordinated major version migration is strictly prohibited.
 
-## Additive Contract Rules
+---
 
-### 1. Invariant Contract Guarantees
-- **Never Remove or Rename:** Do not delete or rename public REST endpoints, RPC methods, JSON keys, protobuf field numbers, or GraphQL queries.
-- **Never Change Types:** Do not change a field from integer to string, or object to array.
-- **Optional by Default:** All newly added request fields must be optional or provide sensible backwards-compatible default values.
-- **Additive Response Fields:** Clients must be assumed to tolerate additional unrecognized fields (tolerant reader pattern).
+## 1. Non-Negotiable Contract Invariant Rules
 
-### 2. Protocol-Specific Checks
-- **REST / JSON APIs:**
-  - Verify JSON serialization tags (`json:"fieldName,omitempty"`).
-  - Verify HTTP status code semantics (200, 201, 204, 400, 401, 403, 404, 422, 500).
-- **Protobuf / gRPC:**
-  - Never alter existing field numbers. Mark deprecated fields with `reserved`.
-- **GraphQL:**
-  - Deprecate old fields using `@deprecated(reason: "...")` before planning removal in future major versions.
+| Change Category | Allowed? | Rule & Mitigation |
+|---|---|---|
+| **Add New Optional Field** | ✅ Allowed | Request fields must be optional with safe defaults; response fields are additive. |
+| **Add New Endpoint** | ✅ Allowed | Fully backward-compatible; does not affect existing route routing. |
+| **Delete Field / Route** | ❌ **PROHIBITED** | Deprecate first. Mark with `@deprecated` or Protobuf `reserved` keyword. |
+| **Rename Field / Route** | ❌ **PROHIBITED** | Add the new field/route in parallel; maintain old field as alias until migration. |
+| **Change Field Type** | ❌ **PROHIBITED** | Mutating `int` to `string` breaks serialization. Add new field with new type. |
+| **Change Enum Values** | ❌ **PROHIBITED** | Never renumber or repurpose enum tags. Append new enum values to end. |
 
-### 3. Contract Test Validation
-- Write consumer-driven contract tests or schema validation tests.
-- Re-run contract test suite against both old and new payload fixtures.
-- Document any schema modifications in `agent/rules/10-contracts-and-conventions.md`.
+---
+
+## 2. Protocol-Specific Verification
+
+### A. RESTful JSON APIs
+- **Serialization Tags:** Confirm exact matching field casing (e.g., `json:"refreshToken,omitempty"`).
+- **HTTP Status Code Semantics:**
+  - `200 OK`: Successful synchronous retrieval/update.
+  - `201 Created`: Resource successfully created (with `Location` header if applicable).
+  - `400 Bad Request`: Validation failure with structured error payload.
+  - `401 Unauthorized` vs `403 Forbidden`: Unauthenticated vs authenticated but lacking permission.
+  - `404 Not Found`: Target resource does not exist.
+  - `422 Unprocessable Entity`: Semantic domain validation failure.
+
+### B. Protobuf / gRPC Wire Compatibility
+- **Field Numbers are Immutable:** Never modify the numerical tag of an existing field.
+- **Handling Removed Fields:** If a field is retired, reserve both the number and name:
+  ```protobuf
+  reserved 4, 12;
+  reserved "old_token", "legacy_status";
+  ```
+
+---
+
+## 3. Contract Test Verification Harness
+1. Execute contract test suites against baseline fixtures from the previous release.
+2. Verify that payloads serialized under the old schema deserialize cleanly into the new schema without data loss or exceptions.
+3. Update `agent/rules/10-contracts-and-conventions.md` with new routes or schema structs.

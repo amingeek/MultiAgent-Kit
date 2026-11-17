@@ -1,34 +1,46 @@
 ---
 name: security-review
 type: on-demand
-description: OWASP-focused threat modeling and static vulnerability scanning.
+description: STRIDE threat modeling and OWASP Top 10 static security auditing. Use when validating security posture, auth, or input boundaries.
 ---
-# Security Review & Threat Modeling Standard
+# Security Review & STRIDE Threat Modeling
 
-Perform thorough security audits on code changes to identify and neutralize vulnerabilities before merge or deployment.
+Audit modified code against real-world vulnerability patterns and enforce defense-in-depth across all trust boundaries.
 
-## OWASP Top 10 Audit Checklist
+---
 
-### 1. Injection & Input Sanitization
-- **SQL / NoSQL Injection:** Verify all queries use parameterized statements or ORM binding. Zero string concatenation in queries.
-- **Command Injection:** Verify user input is never passed directly to system shells (`os.system`, `exec.Command("sh", "-c")`). Use argument vectors.
-- **Path Traversal:** Validate that file paths constructed with user inputs are sanitized and restricted to target base directories (prevent `../`).
+## 1. STRIDE Threat Modeling Matrix
 
-### 2. Broken Authentication & Authorization
-- **Session & Token Management:** Check JWT validation (expiration, issuer, signature algorithm). Disallow `none` algorithm.
-- **Access Control:** Verify every protected API endpoint performs server-side role and tenant authorization checks. Never trust client claims blindly.
+| Threat Category | Verification Focus | Mitigation Requirement |
+|---|---|---|
+| **Spoofing** | Identity & Authentication | Strong JWT verification (validate signature, exp, iss; reject `none` alg) |
+| **Tampering** | Data Integrity & Injections | Parameterized queries, cryptographic HMAC signatures, payload validation |
+| **Repudiation** | Auditability | Immutable audit logs for sensitive operations (without logging credentials) |
+| **Information Disclosure** | Data Privacy | Mask PII, encrypt secrets at rest/in transit, sanitize error messages |
+| **Denial of Service** | Resource Availability | Rate limiting, max request payload bounds, strict connection timeouts |
+| **Elevation of Privilege** | Authorization & RBAC | Server-side role/tenant permission checks on every protected endpoint |
 
-### 3. Cryptographic Failures & Sensitive Data
-- **Secrets:** Verify no hardcoded credentials, secret keys, or salts in source code.
-- **Data Exposure:** Ensure passwords and sensitive PII are never logged in plain text. Passwords must use strong hashing (Argon2, bcrypt).
+---
 
-### 4. Security Misconfiguration & Dependencies
-- **CORS & Headers:** Verify strict CORS origins and security headers (`X-Content-Type-Options: nosniff`, `Content-Security-Policy`).
-- **Dependencies:** Run automated vulnerability scans (`npm audit`, `pip-audit`, `cargo audit`, `govulncheck`) and verify zero high/critical CVEs.
+## 2. OWASP Static Code Audit Checklist
 
-## Output Structure
-If a flaw is found:
-- **Severity:** Critical / High / Medium / Low
-- **Vulnerability Type:** (e.g. CWE-89 SQL Injection)
-- **File & Line:** Exact location
-- **Remediation Code:** Minimal secure drop-in replacement
+### A. Injection Defense (Zero String Concatenation)
+- **SQL / Database Queries:** Confirm 100% parameterization. Flag any query formatted with `fmt.Sprintf`, `+`, or f-strings.
+- **OS Command Execution:** Never pass unsanitized user strings to shells (`sh -c`, `bash -c`, `os.system`). Use structured argument arrays (`exec.Command("git", "status")`).
+- **Path Traversal:** Prevent `../../` directory escapes:
+  ```go
+  // Require clean and verify rooted base path
+  cleanPath := filepath.Clean(userPath)
+  if !strings.HasPrefix(cleanPath, allowedBaseDir) { return ErrForbidden }
+  ```
+
+### B. Cryptography & Authentication Hygiene
+- **Password Storage:** Enforce Argon2id, bcrypt (cost $\ge 12$), or PBKDF2. Disallow MD5, SHA1, or raw SHA256.
+- **Random Number Generation:** Use cryptographically secure RNG (`crypto/rand`) for tokens and salts, never `math/rand`.
+- **SSRF Prevention:** When fetching external URLs provided by users, validate and block access to private/loopback IP ranges (`127.0.0.1`, `10.0.0.0/8`, `169.254.169.254`).
+
+### C. Automated Secret Scanner Command
+```bash
+git diff | grep -E -n "(AKIA[0-9A-Z]{16}|ghp_[0-9a-zA-Z]{36}|-----BEGIN (RSA |EC )?PRIVATE KEY-----|bearer\s+[a-zA-Z0-9_\-\.]+)"
+```
+If any matches appear, abort immediately and sanitize before proceeding.

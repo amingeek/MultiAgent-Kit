@@ -1,21 +1,22 @@
 ---
 name: self-review
 type: always
-description: Pre-commit sanity verification to ensure safety, quality, and clean git staging.
+description: Automated pre-commit sanity gate. Verifies diffs, secrets, and tests before turn end.
 ---
-# Pre-Commit Self-Review
+# Pre-Commit Self-Review Gate
 
-Before staging files or updating state to `SUCCESS`, execute this mandatory sanity check:
+Before staging files or advancing status to `SUCCESS`, execute this mandatory 4-point sanity verification:
 
-## Verification Checklist
-1. **Diff Audit:**
-   - Run `git diff` on modified files.
-   - Verify every line changed is directly related to the current task. No accidental reformatting, unintended edits, or debug prints (`console.log`, `fmt.Println`, `print()`).
-2. **Secret & Credential Check:**
-   - Confirm zero API keys, passwords, bearer tokens, or PEM secrets are present in modified files or git status.
-   - Check `.env` is ignored and only `.env.example` has placeholder keys.
-3. **Build & Test Regression:**
-   - Run the project's build command (`make build`, `npm run build`, `go build ./...`, etc.).
-   - Run the test suite: verified test pass count must be $\ge$ baseline count with 0 new failures.
-4. **Contract Integrity:**
-   - Confirm no public API signatures, protobuf tags, JSON keys, or DB schemas were broken or deleted without deprecation.
+## Pre-Flight Sanity Checklist
+1. **Diff Scrutiny (`git diff` on modified files):**
+   - Confirm every changed line directly serves the assigned step.
+   - Verify zero accidental reformatting, line-ending churn, or whitespace pollution.
+   - Remove all temporary debugging artifacts (`console.log`, `fmt.Println`, `print()`, `debugger`).
+2. **Zero-Secret Leakage Audit:**
+   - Verify zero committed secrets using: `git diff | grep -E -i "(api[_-]?key|bearer|token|secret|private[_-]?key|password)"`
+   - Ensure environment variables are strictly confined to `.env.example` with dummy values.
+3. **Deterministic Test Verification:**
+   - Run the project test runner: verify 100% pass on modified modules.
+   - Guarantee invariant: `passed_tests >= baseline_tests` with 0 new regressions.
+4. **Contract Invariant Check:**
+   - Confirm no public endpoints, DB columns, JSON keys, or exported symbols were deleted or renamed.

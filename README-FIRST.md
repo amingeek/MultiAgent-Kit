@@ -1,8 +1,8 @@
-# راهنمای جامع MultiAgent-Kit نسخه ۶.۰ (Production-Ready Edition)
+# راهنمای جامع MultiAgent-Kit نسخه ۶.۱ (Production-Ready Edition)
 
-این بسته یک فریم‌ورک استاندارد، مهندسی‌شده و قطعی برای هدایت ایجنت‌های هوش مصنوعی (مانند Google Antigravity، Claude Code، Cursor و ترمینال ایجنت‌ها) است که بر پایه معماری **Supervisor-Worker**، توسعه هدایت‌شده با نیازمندی‌ها (**PRD-Driven**)، توسعه قراردادمحور (**Contract-First**)، آزمون‌محور (**TDD**) و ابزار کامپایل‌شده **Golang Native** طراحی شده است.
+این بسته یک فریم‌ورک استاندارد، مهندسی‌شده و قطعی برای هدایت ایجنت‌های هوش مصنوعی (مانند Google Antigravity، Claude Code، Cursor و ترمینال ایجنت‌ها) است که بر پایه معماری **Supervisor-Worker**، توسعه هدایت‌شده با نیازمندی‌ها (**PRD-Driven**)، توسعه قراردادمحور (**Contract-First**)، آزمون‌محور (**TDD**)، ابزار کامپایل‌شده **Golang Native** و **مهارت‌های مهندسی با بازدهی بالا (High-Leverage Skills)** طراحی شده است.
 
-در نسخه ۶.۰، تمام ابزارهای پایتونی حذف شده و کل ابزارها به یک باینری فوق‌العاده سریع و مستقل Go (`agent/tools/mak`) تبدیل شده‌اند. همچنین گردش کار کامل از ایده تا پیاده‌سازی خودکار در ۴ مرحله شفاف تثبیت شده است.
+در نسخه ۶.۱، تمام اسکیل‌ها به الگوریتم‌های واقعی مهندسی (بدون لفاظی و پر کردن کانتکست) بازنویسی شده‌اند و ایجنت به تکنیک‌های استاندارد سطح پروداکشن مجهز شده است.
 
 ---
 
@@ -15,7 +15,7 @@
 
 ### گام اول: تدوین طرح و ویژگی‌های محصول در `PRD.md`
 - در ریشه پروژه فایل `PRD.md` قرار دارد. ایده، استک فنی مورد علاقه، معماری و دامنه‌های عملکردی محصول خود را در آن بنویسید.
-- برای ایجاد یا بازنشانی تمپلیت استاندارد، می‌توانید از دستور زیر استفاده کنید:
+- برای ایجاد یا بازنشانی تمپلیت استاندارد:
   ```bash
   ./agent/tools/mak init-prd
   ```
@@ -25,17 +25,15 @@
   ```bash
   Read BOOTSTRAP.md and follow it exactly.
   ```
-- ایجنت فایل `PRD.md` را خوانده، پوشه‌بندی و ساختار پروژه را متناسب با استک فنی آماده می‌کند، نقشه معماری (`agent/info/PROJECT_MAP.md`) را می‌سازد و به ازای هر دامنه تعریف‌شده در PRD، یک **Domain Master اختصاصی (Epic)** در `agent/masters/NN-*.md` ایجاد می‌کند.
-- **هیچ محدودیتی در تعداد Masterها وجود ندارد** (هر چند تا مستر که برای پوشش کل PRD نیاز باشد ساخته می‌شود).
+- ایجنت فایل `PRD.md` را خوانده، پوشه‌بندی و ساختار پروژه را متناسب با استک فنی آماده می‌کند، نقشه معماری (`agent/info/PROJECT_MAP.md`) را می‌سازد و به ازای هر دامنه تعریف‌شده در PRD، یک **Domain Master اختصاصی (Epic)** در `agent/masters/NN-*.md` ایجاد می‌کند (**هیچ محدودیتی در تعداد Masterها وجود ندارد**).
 
 ### گام سوم: شکست هر Master به مایل‌استون‌های ریزدانه و فنی (`PLAN-MILESTONES.md`)
 - دستور اجرایی در AI CLI یا ترمینال ایجنت:
   ```bash
   Read AGENTS.md, then read agent/tools/PLAN-MILESTONES.md and follow it exactly.
   ```
-- ایجنت آرکیتکت تمامی مسترها را بررسی کرده و هر Master را به چندین مایل‌استون فنی و اجرایی (`agent/Milestones/NN-MM-*.md`) می‌شکند.
-- **هیچ محدودیتی در تعداد مایل‌استون‌ها وجود ندارد** (متناسب با بزرگی پروژه هر مستر می‌تواند به ۳، ۵، ۸، ۱۲ یا بیشتر مایل‌استون ریزدانه تبدیل شود).
-- **جزئیات کامل و قراردادهای قطعی:** هر مایل‌استون شامل امضای دقیق کدی، ساختار DTOها، جداول پایگاه‌داده، کدهای خطا، سناریوهای منفی (همروندی، تایم‌اوت، ورودی نامعتبر) و ماتریس تست‌های TDD است تا ایجنت پیاده‌ساز بدون کوچک‌ترین حدس یا فرضیه‌ای کد دقیق و درست بزند.
+- ایجنت آرکیتکت تمامی مسترها را بررسی کرده و هر Master را به چندین مایل‌استون فنی و اجرایی (`agent/Milestones/NN-MM-*.md`) می‌شکند (**بدون هیچ محدودیتی در تعداد**).
+- **جزئیات کامل و قراردادهای قطعی:** هر مایل‌استون شامل امضای دقیق کدی، ساختار DTOها، جداول پایگاه‌داده، کدهای خطا، سناریوهای منفی و ماتریس تست‌های TDD است تا ایجنت پیاده‌ساز بدون کوچک‌ترین حدس یا فرضیه‌ای کد دقیق و درست بزند.
 
 ### گام چهارم: آغاز توسعه سراسری و چند ایجنتی محصول (`EXECUTE.md`)
 - پس از آماده شدن مایل‌استون‌ها، با این تک‌دستور کل روند توسعه خودکار محصول شروع می‌شود:
@@ -44,6 +42,30 @@
   MODE: FULLY AUTONOMOUS MULTI-AGENT EXECUTION.
   ```
 - ارکستراتور به صورت هوشمند و پیوسته نقش‌های تخصصی را فراخوانی می‌کند، کد خالص نوشته می‌شود، تست‌های TDD اجرا و راستی‌آزمایی می‌شوند و پس از پاس شدن کامل، کامیت اتمیک گیت ثبت شده و سیستم وارد مایل‌استون بعدی می‌شود تا کل محصول تکمیل گردد.
+
+---
+
+## 🧠 کاتالوگ ۱۵ مهارت مهندسی عملیاتی و واقعی (High-Leverage Skills)
+
+در MultiAgent-Kit، مهارت‌ها (Skills) متون نمایشی یا کلیشه‌ای نیستند که کانتکست مدل را الکی پر کنند. هر مهارت یک **مدل ذهنی دقیق، الگوریتم اجرایی، فرمول، تصمیم‌گیری فنی و دستورات خط فرمان معتبر** به ایجنت اضافه می‌کند. مهارت‌های همیشه فعال (`always`) حداکثر زیر ۳۵ خط نگه‌داشته شده‌اند تا بودجه کانتکست حفظ شود:
+
+| مهارت | نوع | زمان فراخوانی (Trigger) | توانمندی و الگوریتم اضافه شده به ایجنت |
+|---|---|---|---|
+| [`token-budget`](file:///media/amin/Amin/code/MultiAgent-Kit/agent/skills/always/token-budget/SKILL.md) | `always` | تمام مراحل (خودکار) | جستجوی نمادها با AST و Grep، خواندن بازه‌ای فایل‌ها، خلاصه diffها و سایلنت کردن خروجی CLI. |
+| [`self-review`](file:///media/amin/Amin/code/MultiAgent-Kit/agent/skills/always/self-review/SKILL.md) | `always` | قبل از پایان هر مرحله | بازرسی تغییرات diff، اسکن رجکس کلیدهای خصوصی و سکرت‌ها، تضمین عدم تغییر قراردادها. |
+| [`checkpointing`](file:///media/amin/Amin/code/MultiAgent-Kit/agent/skills/always/checkpointing/SKILL.md) | `always` | هنگام انتقال وضعیت | کامیت اتمیک گیت، ذخیره وضعیت تایپ‌شده روی دیسک، بازیابی سریع در صورت قطع سشن. |
+| [`handoff-sync`](file:///media/amin/Amin/code/MultiAgent-Kit/agent/skills/always/handoff-sync/SKILL.md) | `always` | واگذاری بین نقش‌ها | پروتکل انتقال JSON، اعتبارسنجی ماشین وضعیت با باینری Go و فیوز ضد لوپ (حداکثر ۳ خطا). |
+| [`debugging`](file:///media/amin/Amin/code/MultiAgent-Kit/agent/skills/on-demand/debugging/SKILL.md) | `on-demand` | خطای تست و باگ ران‌تایم | روش ۵ مرحله‌ای علمی Delta Debugging، ایزولاسیون با تست شکست‌خورده و الگوریتم `git bisect`. |
+| [`safe-refactor`](file:///media/amin/Amin/code/MultiAgent-Kit/agent/skills/on-demand/safe-refactor/SKILL.md) | `on-demand` | بازنویسی و تمیزکاری کد | الگوی Parallel Change مارتین فاولر (Branch by Abstraction) با قانون بازگشت آنی (`revert`). |
+| [`safe-db-migration`](file:///media/amin/Amin/code/MultiAgent-Kit/agent/skills/on-demand/safe-db-migration/SKILL.md) | `on-demand` | تغییرات دیتابیس و جداول | الگوی Expand & Contract بدون داون‌تایم، DDLهای غیرمسدودکننده (`CONCURRENTLY`) و بک‌فیل دسته‌ای. |
+| [`test-design`](file:///media/amin/Amin/code/MultiAgent-Kit/agent/skills/on-demand/test-design/SKILL.md) | `on-demand` | معماری آزمون‌های TDD | تحلیل مقادیر مرزی (BVA)، آزمون‌های تزریق خطا (Fault-Injection) و تست شرایط مسابقه (`-race`). |
+| [`security-review`](file:///media/amin/Amin/code/MultiAgent-Kit/agent/skills/on-demand/security-review/SKILL.md) | `on-demand` | امنیت، احراز هویت و API | ماتریس مدل‌سازی تهدید STRIDE، ممیزی OWASP Top 10، محافظت از اینجکشن و SSRF. |
+| [`performance-investigation`](file:///media/amin/Amin/code/MultiAgent-Kit/agent/skills/on-demand/performance-investigation/SKILL.md) | `on-demand` | کندی سیستم و نشت حافظه | پروفایلینگ مقداری با `pprof`، بررسی پلن کوئری با `EXPLAIN ANALYZE` و تست‌های بنچمارک. |
+| [`code-review`](file:///media/amin/Amin/code/MultiAgent-Kit/agent/skills/on-demand/code-review/SKILL.md) | `on-demand` | بررسی پول‌ریکوئست و کد | چارچوب ۵ بعدی Staff Engineer برای بررسی درستی، امنیت، همروندی، سازگاری و تست‌ها. |
+| [`api-contract-check`](file:///media/amin/Amin/code/MultiAgent-Kit/agent/skills/on-demand/api-contract-check/SKILL.md) | `on-demand` | تغییرات API و DTOها | قوانین سازگاری رو به عقب (Additive-Only)، فیلدهای `reserved` در پروتوباف و استانداردهای REST. |
+| [`dependency-upgrade`](file:///media/amin/Amin/code/MultiAgent-Kit/agent/skills/on-demand/dependency-upgrade/SKILL.md) | `on-demand` | آپدیت پکیج‌ها و CVEها | اسکن خودکار آسیب‌پذیری‌ها (`govulncheck`)، ممیزی diff فایل لاک و بررسی سازگاری لایسنس. |
+| [`docs-writer`](file:///media/amin/Amin/code/MultiAgent-Kit/agent/skills/on-demand/docs-writer/SKILL.md) | `on-demand` | مستندسازی و داکیومنت | استخراج حقیقت از روی سورس کد، ثبت لاگ تصمیمات معماری (ADR) و همگام‌سازی Swagger. |
+| [`release-checklist`](file:///media/amin/Amin/code/MultiAgent-Kit/agent/skills/on-demand/release-checklist/SKILL.md) | `on-demand` | پیش از انتشار نسخه نهایی | بیلد در کانتینر ایزوله، چک لیست SemVer، پروب‌های سلامت (`/healthz`) و پلن رول‌بک فوری. |
 
 ---
 
@@ -101,7 +123,7 @@
 ├── Makefile                  # دستورات کامپایل و اجرای ابزارهای گولنگ
 └── agent/
     ├── HANDOFF_SCHEMA.md     # اسکیما و قرارداد تایپ‌شده تبادل داده بین ایجنت‌ها
-    ├── KIT.md                # مشخصات فنی کیت نسخه ۶.۰
+    ├── KIT.md                # مشخصات فنی کیت نسخه ۶.۱
     ├── MULTI_AGENT_COMMANDS.md# راهنمای کامل فرامین ترمینال برای کپی‌پیست
     ├── RUNBOOK.md            # دفترچه جامع راهبری و مدیریت سیستم چند ایجنتی
     ├── STATE.md              # لاگ وضعیت سراسری سیستم و شواهد اجرا
@@ -109,7 +131,7 @@
     │   └── handoff.json      # حقیقت یگانه وضعیت فعلی (Single Source of Truth)
     ├── rules/                # قوانین غیرقابل نقض مهندسی (۰۰ تا ۱۰)
     ├── roles/                # تعاریف تفکیک‌شده نقش‌ها (Orchestrator، Dev، QA و...)
-    ├── skills/               # ۱۵ مهارت عملیاتی مهندسی (always و on-demand)
+    ├── skills/               # ۱۵ مهارت با بازدهی بالا (always و on-demand)
     ├── masters/              # اسناد معماری کلان دامنه‌ها (Epics)
     ├── Milestones/           # مایل‌استون‌های ریزدانه، اجرایی و دقیق همراه با INDEX
     └── tools/

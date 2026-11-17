@@ -1,23 +1,27 @@
 ---
 name: handoff-sync
 type: always
-description: Multi-agent state alignment and strict JSON validation before turn end.
+description: Multi-agent typed JSON contract alignment and state-machine transition validation.
 ---
-# Handoff-Sync Protocol
+# Handoff-Sync State Machine Protocol
 
-Ensure every handoff between agents strictly adheres to `agent/HANDOFF_SCHEMA.md` and maintains state integrity.
+Guarantee strict typed communication across isolated agent roles adhering to `agent/HANDOFF_SCHEMA.md`.
 
-## Synchronization Protocol
-1. **Schema Validation:**
-   - Before completing your turn, ensure `agent/.state/handoff.json` contains valid JSON.
-   - Run verification via CLI: `./agent/tools/mak validate`.
-2. **Mandatory Keys Verification:**
-   - `active_milestone`: Must include `id`, `title`, and `source_file`.
-   - `current_step`: Must include `step_number`, `description`, `assigned_role`, `role_file`, and `target_files`.
-   - `status`: Must be one of `IDLE`, `IN_PROGRESS`, `QA_FAILED`, `BLOCKED`, `SUCCESS`.
-   - `feedback_loop`: Must have valid `qa_retry_count` ($\le$ `max_retries`).
-3. **Transition Rules:**
-   - Architect $\rightarrow$ Developer: status=`SUCCESS`, assign to Developer.
-   - Developer $\rightarrow$ QA: status=`IN_PROGRESS`, assign to QA.
-   - QA Pass $\rightarrow$ Orchestrator: status=`SUCCESS`, reset `qa_retry_count`=0.
-   - QA Fail $\rightarrow$ Developer: increment `qa_retry_count`. If $\ge$ 3, status=`BLOCKED`, stop.
+## State-Machine Transition Rules
+- **Architect $\rightarrow$ Developer:**
+  `status = SUCCESS` $\rightarrow$ `current_step.assigned_role = developer`. Passes clean interfaces and DDL.
+- **Developer $\rightarrow$ QA:**
+  `status = IN_PROGRESS` $\rightarrow$ `current_step.assigned_role = qa`. Passes pure implementation without tests.
+- **QA Pass $\rightarrow$ Orchestrator:**
+  `status = SUCCESS` $\rightarrow$ `feedback_loop.qa_retry_count = 0`. Orchestrator marks step complete and commits.
+- **QA Fail $\rightarrow$ Developer (Feedback Loop):**
+  Increment `qa_retry_count++`.
+  - If `qa_retry_count < max_retries (3)`: `status = QA_FAILED`, populate `error_logs` and assign to `developer`.
+  - If `qa_retry_count >= max_retries (3)`: `status = BLOCKED`, log to `Failed-approaches.md` and halt for human help.
+
+## Pre-Handoff Integrity Check
+Run the Go CLI validator before concluding any role turn:
+```bash
+./agent/tools/mak validate
+```
+Verify exit code is 0. If validation fails, correct `agent/.state/handoff.json` before yielding control.

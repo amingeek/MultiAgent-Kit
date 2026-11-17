@@ -1,39 +1,55 @@
 ---
 name: code-review
 type: on-demand
-description: Structured diff review checking logic, safety, contracts, tests, and security.
+description: Staff+ Engineer diff audit across correctness, security, concurrency, and backward compatibility. Use during peer reviews or pre-merge audits.
 ---
-# Structured Code Review Procedure
+# Staff+ Structured Code Review Protocol
 
-Conduct rigorous, unbiased code reviews on changed files before approval or milestone completion.
+Conduct rigorous, unbiased technical code reviews on changed files. Evaluate pull requests and milestone deliverables against 5 engineering dimensions:
 
-## Review Pillars & Checklist
+---
 
-### 1. Correctness & Logic
-- [ ] Does the implementation strictly fulfill the specification in the active milestone?
-- [ ] Are edge cases handled (nil/null pointers, empty collections, zero values, overflow, timeouts)?
-- [ ] Are all error returns explicitly checked and handled? No silent error swallowing (`except: pass`, `_ = err`).
+## 1. The 5-Dimension Review Framework
 
-### 2. Contract & API Compatibility
-- [ ] Are existing public interfaces, route parameters, JSON serialization keys, and DTO types preserved?
-- [ ] If new endpoints or fields are introduced, are they strictly additive and optional for older clients?
+### Dimension A: Correctness & Domain Invariants
+- [ ] Does the implementation strictly fulfill the active milestone's specification without scope creep?
+- [ ] Are null/nil pointers, zero-values, bounds overruns, and empty collections handled safely?
+- [ ] Are all error returns explicitly checked and propagated? Zero silent error swallowing (`_ = err`).
 
-### 3. Resource Hygiene & Concurrency
-- [ ] Are all allocated resources (files, sockets, DB connections, mutexes, goroutines/threads) properly closed or terminated?
-- [ ] Is concurrent access protected against race conditions and deadlocks? Are contexts/timeouts passed down?
+### Dimension B: Concurrency & Resource Lifecycle
+- [ ] Are shared states protected by appropriate sync primitives (Mutexes, Channels, RWMutex)?
+- [ ] Are contexts (`ctx context.Context`) and cancellation signals honored across all I/O calls?
+- [ ] Are all allocated handles (file descriptors, sockets, DB pools, timers) guaranteed to close via `defer`?
 
-### 4. Test Verification
-- [ ] Did the author write tests for both happy path and failure/edge cases?
-- [ ] Are tests deterministic (no arbitrary `sleep()` or external network calls)?
-- [ ] Has full test suite been executed with zero regressions?
+### Dimension C: Security & Boundary Validation
+- [ ] Are all inputs from untrusted sources (HTTP body, URL params, CLI args) validated at entry points?
+- [ ] Are database queries 100% parameterized with zero string interpolation?
+- [ ] Zero secrets, private keys, or credentials present in the diff or commit history.
 
-### 5. Security & Hygiene
-- [ ] Zero secrets, tokens, or sensitive data committed or logged.
-- [ ] Input sanitization present at all external trust boundaries (SQL, CLI, HTML, File paths).
-- [ ] No dead code, commented-out blocks, or lingering debug statements.
+### Dimension D: Contract & Backward Compatibility
+- [ ] Are existing public API signatures, routes, Protobuf field tags, and JSON schemas preserved?
+- [ ] Are new request fields optional with backwards-compatible defaults?
 
-## Review Verdict Output
-Report review findings structured into:
-- **Blockers (Must fix before merge):** Critical bugs, security flaws, broken contracts.
-- **Recommendations (Should consider):** Performance or readability improvements.
-- **Verdict:** `APPROVED` or `CHANGES_REQUESTED`.
+### Dimension E: Test Quality & Verification Evidence
+- [ ] Does the test suite cover nominal happy paths, boundary conditions, and negative fault injection?
+- [ ] Are tests deterministic (no arbitrary sleeps or dependence on external network availability)?
+- [ ] Has full test suite been executed with exit code 0 and zero regressions?
+
+---
+
+## 2. Structured Review Report Template
+Always format review feedback using this standard structure:
+
+```markdown
+### 📝 Code Review Summary
+- **Target Files Audited:** `<list files>`
+- **Overall Quality Score:** `PASS` | `NEEDS_REVISION`
+
+#### 🔴 Blockers (Must resolve before merge)
+1. `path/to/file.go:L42`: <Describe bug/vulnerability, why it breaks invariants, and exact fix>
+
+#### 🟡 Non-Blocking Recommendations (Refactoring / Polish)
+1. `path/to/file.go:L88`: <Performance or readability suggestion>
+
+#### 🏁 Final Verdict: [APPROVED | CHANGES_REQUESTED]
+```

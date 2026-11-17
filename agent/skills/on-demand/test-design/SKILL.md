@@ -1,34 +1,42 @@
 ---
 name: test-design
 type: on-demand
-description: Comprehensive test planning covering happy path, edge cases, failure injection, and concurrency.
+description: TDD architecture, boundary value analysis, fault injection, and concurrency testing. Use when designing robust test suites.
 ---
-# Test Design & Architecture Standard
+# Advanced Test Design & Verification Architecture
 
-Design deterministic, high-coverage test suites that test system behavior rather than implementation details.
+Design deterministic, high-coverage test suites that test domain behavior rather than shallow mock invocations. Follow this 4-tier testing hierarchy:
 
-## 4-Tier Test Matrix
-For any new feature or contract, design tests across four critical tiers:
+---
 
-### 1. Happy Path Coverage
-- Validate expected behavior under typical valid inputs.
-- Verify return codes, payload structures, side effects, and state transitions.
+## 1. Boundary Value Analysis (BVA) & Equivalence Partitioning
+For every function parameter, entity field, and API input, generate test vectors covering all 5 boundaries:
 
-### 2. Boundary & Edge Cases
-- Test boundary limits: empty strings, zero length slices, max integers, special characters, unicode, leap years, timezone offsets.
-- Test missing/optional parameters and malformed inputs.
-- Verify clear, informative error responses rather than unhandled panics or 500 crashes.
+| Input Dimension | Lower Boundary | Valid Nominal | Upper Boundary | Invalid / Malformed |
+|---|---|---|---|---|
+| String Fields | Empty `""` | Standard string | Max length (e.g. 255) | Exceeds max, pure whitespace, SQL/XSS injections |
+| Numeric / Amounts | `0`, `-1` | Typical value | Max Int / Precision limit | Overflow, non-numeric strings, negative amounts |
+| Collections / Arrays | Empty `[]` | Single item `[x]` | Batch limit (e.g. 100) | Exceeds batch limit, duplicates, `nil/null` |
+| Timestamps / Dates | Epoch `0` | Current UTC | Far future / Leap year | Malformed ISO-8601, past expiration |
 
-### 3. Failure Injection & Resilience
-- Inject artificial faults for external dependencies (database down, redis timeout, 3rd party API returning 503).
-- Verify circuit breakers, retries with exponential backoff, and graceful fallback paths.
-- Ensure no leaked connections or hanging operations when errors occur.
+---
 
-### 4. Concurrency & Race Conditions
-- Run parallel test executions where appropriate (e.g. `go test -race`, concurrent threads).
-- Test race conditions on shared states, mutexes, and cache invalidation.
+## 2. Negative Scenarios & Fault-Injection Matrix
+Every module communicating across network, IPC, or storage boundaries must verify safe degradation:
+- **Downstream Timeout:** Mock 3rd-party API timeout ($>5000\text{ms}$) $\rightarrow$ verify circuit breaker triggers and returns structured error.
+- **Connection Refused:** Simulate DB connection pool exhaustion $\rightarrow$ verify graceful fallback without unhandled process crash.
+- **Corrupt / Partial Payloads:** Feed truncated JSON or invalid protobuf $\rightarrow$ verify 400 Bad Request with actionable field validation error.
 
-## Test Implementation Principles
-- **Determinism:** Never rely on wall-clock time (`time.Sleep`). Use mock clocks or event-driven synchronization.
-- **Isolation:** Each test must clean up its created resources or run in isolated transactional scopes.
-- **Assertion Quality:** Test domain assertions, not mock call counts.
+---
+
+## 3. Concurrency, Race Hazards & Idempotency
+- **Race Condition Detection:** Execute tests with race detection flags enabled (`go test -race`, Node thread concurrency).
+- **Concurrent Identical Requests:** Fire 10 parallel duplicate requests with identical idempotency keys $\rightarrow$ verify exactly one succeeds, 9 return cached response or safe duplicate status.
+- **Deadlock Resistance:** Verify shared state locks release cleanly even when panics or early returns occur (`defer mu.Unlock()`).
+
+---
+
+## 4. Determinism & Test Hygiene Rules
+- **Freeze Time:** Never use arbitrary wall-clock waits (`sleep(100)`). Use injected clock interfaces or event-driven sync channels.
+- **Hermetic Isolation:** Every test must run in a clean transactional boundary or ephemeral test database. Zero cross-test state leakage.
+- **Assertion Granularity:** Assert exact return types, status codes, and domain invariants; never merely assert that a mock was called.

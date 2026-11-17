@@ -1,21 +1,23 @@
 ---
 name: token-budget
 type: always
-description: Enforces context minimization and token efficiency across all agent operations.
+description: Tactical context minimization and token economy. Loaded automatically on every turn.
 ---
 # Token-Budget Discipline
 
-Keep context lean (<40% context budget consumption). Every token spent on irrelevant logs decreases reasoning accuracy.
+Keep conversation context lean (<40% budget). Every token spent on unparsed logs or redundant code echoes directly degrades reasoning depth and increases hallucination risk.
 
-## Rules & Procedures
-1. **Targeted Search First:**
-   - Use targeted grep (`git grep -n`, `grep -rn`) or symbol search before opening whole files.
-   - Never read entire large files (>300 lines) if only inspecting a function; read bounded line ranges (`StartLine`/`EndLine`).
-2. **Limit Command Output:**
-   - Truncate verbose CLI commands: e.g., `git log -n 5`, `head -n 50`, `pytest -q`, `go test -short`.
-   - Never run raw commands that dump megabytes of logs into the conversation.
-3. **Suppress Redundant Output:**
-   - Summarize findings in concise bullets instead of quoting large blocks of unchanged code.
-   - Never echo back entire existing files when reporting edits.
-4. **Context Hygiene:**
-   - After completing a step, record outcome in `agent/STATE.md` and `agent/.state/handoff.json` so next steps do not need historical re-reading.
+## Actionable Tactical Protocols
+1. **Targeted Symbol & Grep Search (Never Read Whole Trees):**
+   - Locate identifiers using `git grep -n "<symbol>"` or bounded search before opening files.
+   - For files >200 lines, read ONLY bounded line ranges around target symbols (`StartLine`/`EndLine`).
+2. **Deterministic Output Truncation:**
+   - Always run commands with quiet/compact flags: `go test -short`, `npm test -- --silent`, `pytest -q`.
+   - Pipe voluminous CLI outputs through head/tail: `<cmd> | head -n 40` or `<cmd> | tail -n 40`.
+   - Never print raw database dumps, binary contents, or vendor directories.
+3. **Zero Redundant Echoes:**
+   - When reporting changes, output concise structured diff summaries or bulleted results.
+   - Never echo back entire unchanged file contents in responses.
+4. **Context Handoff Offloading:**
+   - Offload historical findings immediately into `agent/STATE.md` and `agent/.state/handoff.json`.
+   - Rely on disk state as persistent memory; do not maintain long conversation logs across steps.

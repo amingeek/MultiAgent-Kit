@@ -1,31 +1,58 @@
 ---
 name: dependency-upgrade
 type: on-demand
-description: Audited package updates with regression tests and vulnerability verification.
+description: Methodical dependency updates, vulnerability remediation, and supply-chain vetting. Use when updating packages or fixing CVEs.
 ---
-# Safe Dependency Upgrade Protocol
+# Safe Dependency Upgrade & Supply-Chain Security
 
-Upgrading third-party dependencies must be methodical and isolated to avoid silent breaking changes or supply-chain compromises.
+Upgrades must be atomic, isolated, and verified against regressions to prevent supply-chain attacks or unexpected runtime failures.
 
-## 4-Step Upgrade Procedure
+---
 
-### 1. Audit Current State
-- Run package manager audit tools (`npm audit`, `cargo audit`, `pip-audit`, `govulncheck`).
-- Document CVE IDs, severities, and target packages.
+## 1. Automated Vulnerability Audit
+Run the verified package audit tool for your ecosystem:
+- **Go:** `govulncheck ./...`
+- **Node.js:** `npm audit --audit-level=high` or `pnpm audit`
+- **Rust:** `cargo audit`
+- **Python:** `pip-audit`
 
-### 2. Isolated Single-Package Bumps
-- Upgrade one dependency (or a tightly coupled group like React + React-DOM) at a time.
-- Review upstream changelog and release notes for breaking changes, deprecated APIs, and migration guides.
-- Check lockfile diff (`package-lock.json`, `pnpm-lock.yaml`, `Cargo.lock`, `go.sum`).
-- Ensure no unexpected transitive packages or suspicious post-install scripts were introduced.
+Record discovered CVE IDs, package names, affected versions, and required patched versions.
 
-### 3. Compile & Test Verification
-- Run compiler and type checks to identify any signature mismatch.
-- Run the full project test suite.
-- If existing tests fail due to internal changes in the dependency, evaluate whether our code relied on undefined behavior or if the upgrade contains a regression.
+---
 
-### 4. Verification Evidence & Recording
-- Record package bump in `agent/STATE.md`:
-  - Old version $\rightarrow$ New version
-  - Rationale (e.g. security fix for CVE-XXXX, performance, bugfix)
-  - Full test suite execution status: all passed.
+## 2. Isolated Single-Package Upgrade Protocol
+1. **Never Run Global Bumps:** Avoid blanket commands (`npm update`, `cargo update`, `go get -u ./...`) that touch dozens of packages simultaneously.
+2. **Upgrade One Package at a Time:**
+   ```bash
+   # Go example
+   go get -u github.com/gin-gonic/gin@v1.10.0 && go mod tidy
+   # Node example
+   npm install axios@1.7.0 --save-exact
+   ```
+3. **Lockfile Diff Audit:**
+   Inspect the lockfile diff (`git diff go.sum` or `package-lock.json`):
+   - Confirm ONLY the target package and its declared transitive dependencies were modified.
+   - Verify zero unvetted post-install scripts or malicious domains in package registries.
+4. **License Compatibility Check:**
+   Ensure newly pulled transitive dependencies do not violate license policies (e.g. accidental introduction of viral AGPL into proprietary codebases).
+
+---
+
+## 3. Compilation & Regression Gating
+1. Clean build verification:
+   ```bash
+   <build_command>
+   ```
+2. Run full automated test suite:
+   ```bash
+   ./agent/tools/mak validate
+   <test_command>
+   ```
+3. **Rollback Trigger:** If any existing test fails, review upstream changelog for breaking changes or regressions. If unresolvable in $<15\text{ mins}$, rollback: `git checkout -- <manifest_files>`.
+
+---
+
+## 4. Documentation & Checkpointing
+Record the upgrade in `agent/STATE.md` under `## Quick Tasks Log`:
+`- YYYY-MM-DD: Upgraded <pkg> from <vOld> to <vNew> | Fixed: <CVE-ID> | Verification: Full test suite passed.`
+Commit atomically: `git commit -m "deps: bump <pkg> from <vOld> to <vNew>"`

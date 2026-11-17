@@ -1,36 +1,74 @@
 ---
 name: debugging
 type: on-demand
-description: Systematic root-cause diagnosis. Formulate hypotheses, isolate with minimal test, fix minimally.
+description: Scientific root-cause isolation and delta debugging. Use when tests fail, runtime errors occur, or bugs are reported.
 ---
-# Systematic Root-Cause Debugging
+# Systematic Root-Cause & Delta Debugging
 
-When a test fails, runtime error occurs, or bug report is received, follow this 5-stage scientific method. Never guess fixes or make shot-in-the-dark modifications.
+Never guess fixes, apply random trial-and-error patches, or modify multiple files simultaneously. Follow this 5-phase scientific debugging methodology:
 
-## 5-Stage Scientific Protocol
+```
+[1. Deterministic Repro] ──► [2. Trace Boundary] ──► [3. Falsifiable Hypothesis] ──► [4. Surgical Fix] ──► [5. Regression Gate]
+```
 
-### 1. Reproduce Deterministically
-- Capture the exact input, environment state, and arguments causing the failure.
-- Create a minimal reproducing test case (unit or integration test) that fails with the exact signature.
-- Verify: Test must fail 100% reliably before any code is modified.
+---
 
-### 2. Isolate the Failure Boundary
-- Trace the execution call stack backwards from the point of failure.
-- Inspect inputs/outputs across module boundaries.
-- Formulate a precise hypothesis: "Function `X` fails when input `Y` has condition `Z` because invariant `W` is violated."
+## Phase 1: Deterministic Reproduction Harness
+1. **Isolate Input Vector:** Extract the exact payload, environment variables, headers, or state causing the defect.
+2. **Author Minimal Failing Test:** Write a single, focused test case reproducing the failure.
+3. **Verify Pre-Condition:** Run the test once:
+   ```bash
+   <test_runner_cmd> -run <TestName>
+   ```
+   **Hard Gate:** The test MUST fail with the exact reported error signature before touching ANY application code. If it passes, your reproduction harness is invalid.
 
-### 3. Verify Hypothesis with Instrumentation
-- Add temporary non-intrusive logging or check state assertions at the hypothesis boundary.
-- Confirm whether state at that point matches your hypothesis.
-- If disproven: document failure in `agent/Failed-approaches.md` and formulate a new hypothesis.
+---
 
-### 4. Minimal Surgical Fix
-- Make the smallest viable additive change to resolve the root cause.
-- Preserve all existing function signatures, return types, and public contracts.
-- Do not refactor unrelated code or perform cosmetic cleanups in the same patch.
+## Phase 2: Binary Search & Trace Boundary
+1. **Trace Invariants Backwards:** Start at the stack trace error line and inspect state variables moving up the call tree.
+2. **Automated Regression Search (`git bisect`):**
+   If the bug is a regression from a previous working commit:
+   ```bash
+   git bisect start
+   git bisect bad HEAD
+   git bisect good <last_known_good_commit>
+   git bisect run <verified_test_command>
+   git bisect reset
+   ```
+3. **Identify Invariant Failure:** Pinpoint the exact expression where actual state diverges from expected domain invariants.
 
-### 5. Regression & Cleanup
-- Re-run the reproducing test: confirm it now PASSES.
-- Run the full test suite to guarantee zero regression: passed test count $\ge$ baseline count.
-- Clean up any temporary debug logs or instrumentation.
-- Record the root cause, fix, and evidence in `agent/STATE.md` and `agent/.state/handoff.json`.
+---
+
+## Phase 3: Falsifiable Hypothesis Formulation
+Before modifying code, articulate the hypothesis using this exact template:
+> *"Defect occurs in `<file>:<function>` when input `<X>` satisfies condition `<Y>` because invariant `<Z>` is violated, resulting in error `<E>`."*
+
+Validate the hypothesis with targeted non-intrusive logging or assertions. If disproven, document in `agent/Failed-approaches.md` and formulate the next hypothesis.
+
+---
+
+## Phase 4: Minimal Surgical Fix
+1. Apply the smallest viable additive change resolving the invariant violation.
+2. **Non-Negotiable Constraints:**
+   - Preserve all public function signatures, parameter orders, and return types.
+   - Do NOT refactor adjacent code, reformat styles, or update unrelated dependencies.
+   - Never suppress errors with empty catches (`catch (e) {}` or `_ = err`).
+
+---
+
+## Phase 5: Regression & Evidence Gate
+1. Run the reproducing test: confirm it passes 100%.
+2. Run the complete project test suite:
+   ```bash
+   ./agent/tools/mak validate
+   <full_test_suite_cmd>
+   ```
+3. Verify: `passed_tests >= baseline_tests` and zero new regressions.
+4. Record root cause, fix rationale, and test output in `agent/STATE.md` and `agent/.state/handoff.json`.
+
+---
+
+## 🚫 Common Agent Anti-Patterns (What NOT to Do)
+- ❌ **Modifying the Test:** Altering assertions or disabling tests to achieve a green result is strictly prohibited (violates Rule 02).
+- ❌ **Shotgun Debugging:** Changing three different functions at once without knowing which one fixed the issue.
+- ❌ **Blind Error Swallowing:** Wrapping failing logic in a catch block and returning a default value without handling the failure mode.

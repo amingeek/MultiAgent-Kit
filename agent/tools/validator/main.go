@@ -403,7 +403,7 @@ func printStats(stats ProjectStats) {
 	progressBar := strings.Repeat("█", completedBlocks) + strings.Repeat("░", barLength-completedBlocks)
 
 	fmt.Printf("\n%s═══════════════════════════════════════════════════════════%s\n", boldColor, resetColor)
-	fmt.Printf("%s 📊 MultiAgent-Kit Project Execution Metrics (v6.0)%s\n", boldColor, resetColor)
+	fmt.Printf("%s 📊 MultiAgent-Kit Project Execution Metrics (v6.1)%s\n", boldColor, resetColor)
 	fmt.Printf("%s═══════════════════════════════════════════════════════════%s\n", boldColor, resetColor)
 	fmt.Printf("  %sDomain Masters (Epics):%s   %d\n", boldColor, resetColor, stats.MastersCount)
 	fmt.Printf("  %sTotal Milestones:%s         %d\n", boldColor, resetColor, stats.TotalMilestones)
@@ -437,7 +437,7 @@ func printSummary(data *HandoffData) {
 	}
 
 	fmt.Printf("\n%s═══════════════════════════════════════════════════════════%s\n", boldColor, resetColor)
-	fmt.Printf("%s 🤖 MultiAgent-Kit System Dashboard (v6.0 Go Native)%s\n", boldColor, resetColor)
+	fmt.Printf("%s 🤖 MultiAgent-Kit System Dashboard (v6.1 Go Native)%s\n", boldColor, resetColor)
 	fmt.Printf("%s═══════════════════════════════════════════════════════════%s\n", boldColor, resetColor)
 	fmt.Printf("  %sProject Name:%s      %s\n", boldColor, resetColor, data.ProjectName)
 	fmt.Printf("  %sTech Stack:%s        %s\n", boldColor, resetColor, tech)
@@ -630,7 +630,7 @@ func main() {
 	flag.BoolVar(&initPRD, "init-prd", false, "Create default PRD.md template if not present")
 
 	flag.Usage = func() {
-		fmt.Fprintf(os.Stderr, "MultiAgent-Kit CLI & State Validator (v6.0 Go Native)\n\nUsage:\n")
+		fmt.Fprintf(os.Stderr, "MultiAgent-Kit CLI & State Validator (v6.1 Go Native)\n\nUsage:\n")
 		fmt.Fprintf(os.Stderr, "  mak [command | flag]\n\nCommands:\n")
 		fmt.Fprintf(os.Stderr, "  validate              # Validate state & handoff files (default)\n")
 		fmt.Fprintf(os.Stderr, "  check-all, -a         # Deep audit: rules, roles, skills, templates, PRD, state\n")

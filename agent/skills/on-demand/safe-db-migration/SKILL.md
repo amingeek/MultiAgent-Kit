@@ -1,33 +1,60 @@
 ---
 name: safe-db-migration
 type: on-demand
-description: Zero-downtime, additive, reversible database schema migration protocol.
+description: Zero-downtime, non-blocking database migrations via Expand & Contract. Use when modifying DB schemas, tables, indexes, or constraints.
 ---
 # Safe Database Migration Protocol (Zero-Downtime)
 
-Database schema migrations carry the highest risk of service outage. Follow the **Expand and Contract (Parallel Run)** pattern to guarantee zero downtime.
+Database migrations carry the highest operational risk. Never execute destructive DDL or lock tables in production. Follow the **Expand and Contract (Parallel Run)** methodology:
 
-## 3-Phase Expand & Contract Pattern
+```
+[Phase 1: Expand (Additive)] ──► [Phase 2: Dual-Write & Batch Backfill] ──► [Phase 3: Contract (Cleanup)]
+```
 
-### Phase 1: Expand (Additive Migration)
-- Add new tables, nullable columns, or new indexes concurrently without locking tables.
-- **Rules:**
-  - Never add non-null columns without a default value.
-  - Never drop columns or tables in Phase 1.
-  - Never rename existing columns. (Add the new column, write to both, read from old).
-  - Create indexes concurrently (`CREATE INDEX CONCURRENTLY` in Postgres).
+---
 
-### Phase 2: Migrate & Dual-Write
-- Deploy application code that reads from new schema and dual-writes to both old and new columns.
-- Backfill historical data in small, rate-limited batches to prevent locking or replication lag.
-- Verify data parity between old and new structures.
+## Phase 1: Expand (Non-Blocking Additive DDL)
+1. **Additive Changes Only:**
+   - Add new tables, nullable columns, or columns with non-blocking defaults.
+   - **Prohibited:** Never add `NOT NULL` columns without default values.
+   - **Prohibited:** Never rename existing columns or tables.
+2. **Non-Blocking Index Creation:**
+   - In PostgreSQL: Always use `CREATE INDEX CONCURRENTLY`.
+   - In MySQL: Verify `ALGORITHM=INPLACE, LOCK=NONE`.
+3. **Set Safe Lock Timeouts:**
+   Every DDL migration script must include a strict lock timeout to prevent locking connection pools:
+   ```sql
+   SET lock_timeout = '2s';
+   SET statement_timeout = '30s';
+   ```
 
-### Phase 3: Contract (Cleanup)
-- Once 100% of traffic is switched to new columns and old code is retired:
-  - Stop dual-writing.
-  - Remove deprecated columns/indexes in a subsequent milestone.
+---
 
-## Rollback Readiness
-- Every migration script must include a tested, reversible `down` migration.
-- Never use destructive statements (`DROP TABLE`, `TRUNCATE`, destructive `ALTER TYPE`).
-- Any destructive operation must be marked `BLOCKED-ON-HUMAN` in accordance with Rule 00.
+## Phase 2: Migrate, Dual-Write & Throttled Backfill
+1. **Dual-Writing in Application Code:**
+   - Deploy code that writes to BOTH old and new columns.
+   - Read from the new column with fallback to old column if null.
+2. **Throttled Batch Backfills:**
+   - Backfill historical rows in small, rate-limited chunks with sleep pauses to avoid database locks and replication lag:
+   ```sql
+   -- Example batch backfill query
+   UPDATE users 
+   SET new_status = old_status 
+   WHERE id IN (
+     SELECT id FROM users WHERE new_status IS NULL LIMIT 1000
+   );
+   ```
+3. **Parity Verification:** Verify 100% data consistency between old and new columns before advancing.
+
+---
+
+## Phase 3: Contract (Safe Teardown)
+1. Stop dual-writing; read exclusively from new schema.
+2. Verify zero queries reference deprecated columns for at least one release cycle.
+3. In a separate, subsequent milestone: remove deprecated columns/views.
+
+---
+
+## 🛡️ Mandatory Migration Safeguards
+- **Reversible Down Scripts:** Every `up.sql` MUST have an accompanying, tested `down.sql`.
+- **Destructive Operations Gate:** Any `DROP TABLE`, `DROP COLUMN`, or `TRUNCATE` is classified as `BLOCKED-ON-HUMAN` under Rule 00. Never execute autonomously.
